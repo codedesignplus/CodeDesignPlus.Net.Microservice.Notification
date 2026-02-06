@@ -1,0 +1,10 @@
+{
+  "microservice": "Notification",
+  "description": "Microservicio centralizado de notificaciones en tiempo real que orquesta la ingesta de eventos vía gRPC Streaming y su distribución escalable a clientes web mediante SignalR y Redis Backplane.",
+  "version": "1.0.0",
+  "organization": "CodeDesignPlus",
+  "aggregate": "Notifications",
+  "vault": "security-codedesignplus",
+  "contactName": "Wilzon Liscano",
+  "contactEmail": "wliscano@codedesignplus.com"
+}

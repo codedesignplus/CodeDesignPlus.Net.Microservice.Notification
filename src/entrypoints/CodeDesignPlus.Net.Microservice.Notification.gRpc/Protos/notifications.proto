@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Notification.gRpc";
+
+package Notifications;
+
+service Notifier {
+  rpc SendToUser (stream NotificationRequest) returns (stream NotificationResponse);
+  rpc Broadcast (stream NotificationRequest) returns (stream NotificationResponse);
+  rpc SendToGroup (stream NotificationGroupRequest) returns (stream NotificationResponse);
+}
+
+message NotificationRequest {
+  string targetId = 1;      // UserId (o ignorar si es broadcast)
+  string methodName = 2;    // El nombre del evento en el frontend (ej: "ReceiveOrderUpdate")
+  string jsonPayload = 3;   // Los datos serializados en JSON
+}
+
+message NotificationGroupRequest {
+  string groupName = 1;
+  string methodName = 2;
+  string jsonPayload = 3;
+}
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+}

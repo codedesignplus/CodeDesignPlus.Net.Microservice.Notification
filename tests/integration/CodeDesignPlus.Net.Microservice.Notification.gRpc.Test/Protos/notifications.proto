@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Notification.gRpc.Test";
+
+package Notifications;
+
+
+service Notifications {
+  rpc GetNotifications (stream GetNotificationsRequest) returns (stream GetNotificationsResponse);
+}
+
+message GetNotificationsRequest {
+  string Id = 1;
+}
+
+message GetNotificationsResponse {
+
+}
