@@ -9,4 +9,3 @@ global using Grpc.Core.Interceptors;
 global using CodeDesignPlus.Net.Serializers;
 global using NodaTime;
 
-global using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.DataTransferObjects;

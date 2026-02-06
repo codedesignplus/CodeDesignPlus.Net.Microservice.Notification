@@ -11,4 +11,3 @@ global using CodeDesignPlus.Net.Microservice.Notification.gRpc.Services;
 global using Grpc.Core.Testing;
 global using CodeDesignPlus.Net.Serializers;
 
-global using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.DataTransferObjects;

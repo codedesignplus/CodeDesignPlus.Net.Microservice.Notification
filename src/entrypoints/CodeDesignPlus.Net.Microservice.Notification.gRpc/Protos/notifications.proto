@@ -1,9 +1,5 @@
 syntax = "proto3";
 
-
-import "google/protobuf/wrappers.proto";
-import "google/protobuf/empty.proto";
-
 option csharp_namespace = "CodeDesignPlus.Net.Microservice.Notification.gRpc";
 
 package Notifications;

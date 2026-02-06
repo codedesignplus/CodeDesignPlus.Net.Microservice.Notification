@@ -26,8 +26,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{5769C6DB-68E8-4A8C-B43A-243401CDB4A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Rest.Test", "tests\integration\CodeDesignPlus.Net.Microservice.Notification.Rest.Test\CodeDesignPlus.Net.Microservice.Notification.Rest.Test.csproj", "{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Application.Test", "tests\unit\CodeDesignPlus.Net.Microservice.Notification.Application.Test\CodeDesignPlus.Net.Microservice.Notification.Application.Test.csproj", "{92CD6EF4-50B4-41DA-AA90-BF6A67961833}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Default.Test", "tests\unit\CodeDesignPlus.Net.Microservice.Notification.Default.Test\CodeDesignPlus.Net.Microservice.Notification.Default.Test.csproj", "{231147C8-D789-49E0-B8D0-24F4FEA91C95}"
@@ -35,8 +33,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Domain.Test", "tests\unit\CodeDesignPlus.Net.Microservice.Notification.Domain.Test\CodeDesignPlus.Net.Microservice.Notification.Domain.Test.csproj", "{07011B4D-501F-490B-9174-A2434B071E79}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Test", "tests\unit\CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Test\CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Test.csproj", "{B190F800-89F0-43CD-B9BD-3EDD0C2E4B37}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Notification.Rest.Test", "tests\unit\CodeDesignPlus.Net.Microservice.Notification.Rest.Test\CodeDesignPlus.Net.Microservice.Notification.Rest.Test.csproj", "{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Microservice.Notification.gRpc", "src\entrypoints\CodeDesignPlus.Net.Microservice.Notification.gRpc\CodeDesignPlus.Net.Microservice.Notification.gRpc.csproj", "{A137B7DD-0332-45A5-9A66-9AA4E2C71350}"
 EndProject
@@ -90,18 +86,6 @@ Global
 		{74D017BE-39B9-4D77-9E08-1DF7B8A4FE62}.Release|x64.Build.0 = Release|Any CPU
 		{74D017BE-39B9-4D77-9E08-1DF7B8A4FE62}.Release|x86.ActiveCfg = Release|Any CPU
 		{74D017BE-39B9-4D77-9E08-1DF7B8A4FE62}.Release|x86.Build.0 = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|x64.Build.0 = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Debug|x86.Build.0 = Debug|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|x64.ActiveCfg = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|x64.Build.0 = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|x86.ActiveCfg = Release|Any CPU
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED}.Release|x86.Build.0 = Release|Any CPU
 		{92CD6EF4-50B4-41DA-AA90-BF6A67961833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{92CD6EF4-50B4-41DA-AA90-BF6A67961833}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92CD6EF4-50B4-41DA-AA90-BF6A67961833}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -150,18 +134,6 @@ Global
 		{B190F800-89F0-43CD-B9BD-3EDD0C2E4B37}.Release|x64.Build.0 = Release|Any CPU
 		{B190F800-89F0-43CD-B9BD-3EDD0C2E4B37}.Release|x86.ActiveCfg = Release|Any CPU
 		{B190F800-89F0-43CD-B9BD-3EDD0C2E4B37}.Release|x86.Build.0 = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|x64.Build.0 = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Debug|x86.Build.0 = Debug|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|Any CPU.Build.0 = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|x64.ActiveCfg = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|x64.Build.0 = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|x86.ActiveCfg = Release|Any CPU
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959}.Release|x86.Build.0 = Release|Any CPU
 		{A137B7DD-0332-45A5-9A66-9AA4E2C71350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A137B7DD-0332-45A5-9A66-9AA4E2C71350}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A137B7DD-0332-45A5-9A66-9AA4E2C71350}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -211,12 +183,10 @@ Global
 		{454F7422-1558-4ECB-9BA6-9C4BF69CF8C6} = {8CA2014D-1EBA-4CC8-B303-13289F7F279C}
 		{C19E3964-BDFB-41E0-B86C-CA90E3E5F335} = {8CA2014D-1EBA-4CC8-B303-13289F7F279C}
 		{5769C6DB-68E8-4A8C-B43A-243401CDB4A2} = {8CA2014D-1EBA-4CC8-B303-13289F7F279C}
-		{5E9FE4C4-9055-4EAD-A600-BAE1A5D598ED} = {C19E3964-BDFB-41E0-B86C-CA90E3E5F335}
 		{92CD6EF4-50B4-41DA-AA90-BF6A67961833} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
 		{231147C8-D789-49E0-B8D0-24F4FEA91C95} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
 		{07011B4D-501F-490B-9174-A2434B071E79} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
 		{B190F800-89F0-43CD-B9BD-3EDD0C2E4B37} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
-		{86BB4D11-6C2F-44CA-B7DF-527FDFE79959} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
 		{A137B7DD-0332-45A5-9A66-9AA4E2C71350} = {EBFDC2CC-2318-45BC-B619-8754439D2541}
 		{52EE3B21-B647-412E-8950-4A78EF881821} = {5769C6DB-68E8-4A8C-B43A-243401CDB4A2}
 		{3DB2FB13-CC85-4CA4-9B2B-9FD22E289430} = {C19E3964-BDFB-41E0-B86C-CA90E3E5F335}
