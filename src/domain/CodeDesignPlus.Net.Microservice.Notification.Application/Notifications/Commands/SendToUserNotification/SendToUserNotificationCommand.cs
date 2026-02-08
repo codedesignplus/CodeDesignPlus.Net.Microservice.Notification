@@ -1,7 +1,7 @@
 namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.SendToUserNotification;
 
 [DtoGenerator]
-public record SendToUserNotificationCommand(Guid Id, string UserId, string MethodName, string JsonPayload, string TraceId) : IRequest<bool>;
+public record SendToUserNotificationCommand(Guid Id, Guid UserId, string EventName, string JsonPayload, Guid Tenant, Guid SentBy) : IRequest<bool>;
 
 public class Validator : AbstractValidator<SendToUserNotificationCommand>
 {
@@ -11,8 +11,8 @@ public class Validator : AbstractValidator<SendToUserNotificationCommand>
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("The UserId is required for sending direct notifications.");
 
-        RuleFor(x => x.MethodName)
-            .NotEmpty().WithMessage("The MethodName is required so the client knows which event to listen to.");
+        RuleFor(x => x.EventName)
+            .NotEmpty().WithMessage("The EventName is required so the client knows which event to listen to.");
 
         RuleFor(x => x.JsonPayload)
             .NotEmpty().WithMessage("The payload cannot be empty.");
@@ -20,5 +20,7 @@ public class Validator : AbstractValidator<SendToUserNotificationCommand>
         RuleFor(x => x.JsonPayload)
             .Must(json => json.TrimStart().StartsWith('{') || json.TrimStart().StartsWith('['))
             .WithMessage("The payload must be a valid JSON.");
+
+        RuleFor(x => x.Tenant).NotEmpty();
     }
 }

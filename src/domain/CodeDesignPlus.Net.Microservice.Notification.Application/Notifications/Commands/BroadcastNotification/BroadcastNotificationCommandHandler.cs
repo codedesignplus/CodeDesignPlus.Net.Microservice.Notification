@@ -7,11 +7,11 @@ public class BroadcastNotificationCommandHandler(INotifierGateway notifier, INot
 {
     public async Task<bool> Handle(BroadcastNotificationCommand request, CancellationToken cancellationToken)
     {
-        var aggregate = NotificationsAggregate.Create(Guid.NewGuid(), "ALL_USERS", NotificationType.Broadcast, request.JsonPayload, SystemClock.Instance.GetCurrentInstant(), Guid.Empty, Guid.Empty);
+        var aggregate = NotificationsAggregate.Create(request.Id, NotificationType.Broadcast, request.JsonPayload, request.Tenant, request.SentBy);
 
         try
         {
-            await notifier.BroadcastAsync(request.MethodName, request.JsonPayload, cancellationToken);
+            await notifier.BroadcastAsync(request.EventName, request.JsonPayload, cancellationToken);
 
             aggregate.MarkAsSent(Guid.Empty);
         }

@@ -43,7 +43,11 @@ builder.Services.AddLogger(builder.Configuration);
 builder.Services.AddCache(builder.Configuration);
 builder.Services.AddHealthChecksServices();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(o =>
+    {
+        o.Configuration.ChannelPrefix = RedisChannel.Literal("Notify_");
+    });
 
 var app = builder.Build();
 

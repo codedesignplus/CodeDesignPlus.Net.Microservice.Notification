@@ -10,27 +10,36 @@ public static class MapsterConfig
 {
     public static void Configure()
     {
-        TypeAdapterConfig<NotificationRequest, SendToUserNotificationCommand>
+        TypeAdapterConfig<NotificationUserRequest, SendToUserNotificationCommand>
             .NewConfig()
-            .Map(dest => dest.Id, src => Guid.NewGuid()) // Generamos ID del comando
-            .Map(dest => dest.TraceId, src => Guid.NewGuid().ToString()) // Generamos o extraemos TraceId
-            .Map(dest => dest.UserId, src => src.TargetId)
-            .Map(dest => dest.MethodName, src => src.MethodName)
-            .Map(dest => dest.JsonPayload, src => src.JsonPayload);
+            .ConstructUsing(src => new SendToUserNotificationCommand(
+                Guid.Parse(src.Id),
+                Guid.Parse(src.UserId),
+                src.EventName,
+                src.JsonPayload,
+                Guid.Parse(src.Tenant),
+                string.IsNullOrEmpty(src.SentBy) ? Guid.Empty : Guid.Parse(src.SentBy)
+            ));
 
-        TypeAdapterConfig<NotificationRequest, BroadcastNotificationCommand>
+        TypeAdapterConfig<NotificationBroadcastRequest, BroadcastNotificationCommand>
             .NewConfig()
-            .Map(dest => dest.Id, src => Guid.NewGuid())
-            .Map(dest => dest.TraceId, src => Guid.NewGuid().ToString())
-            .Map(dest => dest.MethodName, src => src.MethodName)
-            .Map(dest => dest.JsonPayload, src => src.JsonPayload);
+            .ConstructUsing(src => new BroadcastNotificationCommand(
+                Guid.Parse(src.Id),
+                src.EventName,
+                src.JsonPayload,
+                Guid.Parse(src.Tenant),
+                string.IsNullOrEmpty(src.SentBy) ? Guid.Empty : Guid.Parse(src.SentBy)
+            ));
 
         TypeAdapterConfig<NotificationGroupRequest, SendToGroupNotificationCommand>
             .NewConfig()
-            .Map(dest => dest.Id, src => Guid.NewGuid())
-            .Map(dest => dest.TraceId, src => Guid.NewGuid().ToString())
-            .Map(dest => dest.GroupName, src => src.GroupName)
-            .Map(dest => dest.MethodName, src => src.MethodName)
-            .Map(dest => dest.JsonPayload, src => src.JsonPayload);
+            .ConstructUsing(src => new SendToGroupNotificationCommand(
+                Guid.Parse(src.Id),
+                src.GroupName,
+                src.EventName,
+                src.JsonPayload,
+                Guid.Parse(src.Tenant),
+                string.IsNullOrEmpty(src.SentBy) ? Guid.Empty : Guid.Parse(src.SentBy)
+            ));
     }
 }

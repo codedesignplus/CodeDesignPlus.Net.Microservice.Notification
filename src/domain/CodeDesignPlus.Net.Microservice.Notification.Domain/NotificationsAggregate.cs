@@ -5,13 +5,17 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Domain;
 public class NotificationsAggregate(Guid id) : AggregateRoot(id)
 {
     /// <summary>
-    /// Aggregate root for notifications, representing a notification event sent to a user, group, or broadcasted to all.
+    /// User identifier to whom the notification is targeted
     /// </summary>
-    public string Target { get; private set; } = string.Empty;
+    public Guid? UserId { get; private set; }
     /// <summary>
     /// Type of notification: User, Group, or Broadcast
     /// </summary>
     public NotificationType Type { get; private set; }
+    /// <summary>
+    /// Name of the group to which the notification is targeted
+    /// </summary>
+    public string? GroupName { get; private set; }
     /// <summary>
     /// Preview or snippet of the notification payload, useful if the full payload is large.
     /// </summary>
@@ -29,14 +33,13 @@ public class NotificationsAggregate(Guid id) : AggregateRoot(id)
     /// </summary>
     public string? FailureReason { get; private set; }
 
-    public static NotificationsAggregate Create(Guid id, string target, NotificationType type, string? payloadPreview, Instant SentAt, Guid tenant, Guid createdBy)
+    public static NotificationsAggregate Create(Guid id, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
         var aggregate = new NotificationsAggregate(id)
         {
-            Target = target,
             Type = type,
             PayloadPreview = payloadPreview,
-            SentAt = SentAt,
+            SentAt = SystemClock.Instance.GetCurrentInstant(),
             CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             CreatedBy = createdBy
         };
@@ -44,12 +47,29 @@ public class NotificationsAggregate(Guid id) : AggregateRoot(id)
         return aggregate;
     }
 
+    public static NotificationsAggregate Create(Guid id, Guid? userId, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
+    {
+        var aggregate = Create(id, type, payloadPreview, tenant, createdBy);
+
+        aggregate.UserId = userId;
+
+        return aggregate;
+    }
+
+    public static NotificationsAggregate Create(Guid id, string groupName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
+    {
+        var aggregate = Create(id, type, payloadPreview, tenant, createdBy);
+
+        aggregate.GroupName = groupName;
+
+        return aggregate;
+    }
 
     public void MarkAsSent(Guid? updateBy)
     {
         WasSuccess = true;
 
-        UpdatedAt =  SystemClock.Instance.GetCurrentInstant();
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         UpdatedBy = updateBy;
     }
 

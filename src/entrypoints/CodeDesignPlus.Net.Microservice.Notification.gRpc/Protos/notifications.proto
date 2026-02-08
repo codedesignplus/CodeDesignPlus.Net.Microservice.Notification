@@ -5,21 +5,52 @@ option csharp_namespace = "CodeDesignPlus.Net.Microservice.Notification.gRpc";
 package Notifications;
 
 service Notifier {
-  rpc SendToUser (stream NotificationRequest) returns (stream NotificationResponse);
-  rpc Broadcast (stream NotificationRequest) returns (stream NotificationResponse);
+  //Sent notifications to a specific user identified by their ID.
+  rpc SendToUser (stream NotificationUserRequest) returns (stream NotificationResponse);
+  //Sends a broadcast notification to all connected users (within a Tenant).
+  rpc Broadcast (stream NotificationBroadcastRequest) returns (stream NotificationResponse);
+  //Sends notifications to a logical group of connections (e.g., "Administrators", "Project_A").
   rpc SendToGroup (stream NotificationGroupRequest) returns (stream NotificationResponse);
 }
 
-message NotificationRequest {
-  string targetId = 1;      // UserId (o ignorar si es broadcast)
-  string methodName = 2;    // El nombre del evento en el frontend (ej: "ReceiveOrderUpdate")
-  string jsonPayload = 3;   // Los datos serializados en JSON
+message NotificationUserRequest {
+  string id = 1;
+  //Unique identifier of the target user (GUID or JWT Sub).
+  string userId = 2;      
+  //Name of the event in the frontend (e.g., OrderUpdated).
+  string eventName = 3;    
+  //Serialized JSON object with the notification data.
+  string jsonPayload = 4;   
+  //Identifier of the client/organization for data isolation.
+  string tenant = 5;
+  //Identifier of the system or user originating the notification.
+  string sentBy = 6;
+}
+
+message NotificationBroadcastRequest {
+  string id = 1;
+  //Name of the event that clients should listen to.
+  string eventName = 2;
+  //Serialized JSON object with the notification data.
+  string jsonPayload = 3;
+  //Identifier of the client/organization for data isolation.
+  string tenant = 4;
+  //Identifier of the system or user originating the notification.
+  string sentBy = 5;
 }
 
 message NotificationGroupRequest {
-  string groupName = 1;
-  string methodName = 2;
-  string jsonPayload = 3;
+  string id = 1;
+  //Name of the group to which the message will be sent (must match SignalR groups).
+  string groupName = 2;
+  //Name of the event that clients should listen to.
+  string eventName = 3;
+  //Serialized JSON object with the notification data.
+  string jsonPayload = 4;
+  //Identifier of the client/organization for data isolation.
+  string tenant = 5;
+  //Identifier of the system or user originating the notification.
+  string sentBy = 6;
 }
 
 message NotificationResponse {

@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.Microservice.Notification.gRpc.Services;
 public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier.NotifierBase
 {
     public override async Task Broadcast(
-        IAsyncStreamReader<NotificationRequest> requestStream,
+        IAsyncStreamReader<NotificationBroadcastRequest> requestStream,
         IServerStreamWriter<NotificationResponse> responseStream,
         ServerCallContext context)
     {
@@ -39,7 +39,7 @@ public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier
     }
 
     public override async Task SendToUser(
-        IAsyncStreamReader<NotificationRequest> requestStream,
+        IAsyncStreamReader<NotificationUserRequest> requestStream,
         IServerStreamWriter<NotificationResponse> responseStream,
         ServerCallContext context)
     {
@@ -53,7 +53,7 @@ public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier
                 await responseStream.WriteAsync(new NotificationResponse
                 {
                     Success = true,
-                    Message = $"Sent to {request.TargetId}"
+                    Message = $"Sent to {request.UserId}"
                 });
             }
             catch (Exception ex)
