@@ -12,9 +12,19 @@ public class NotificationsService(IMediator mediator, ILogger<NotificationsServi
     {
         await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
         {
+
             try
             {
-                var command = new BroadcastNotificationCommand(Guid.Parse(request.Id), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
+                if (!Guid.TryParse(request.Id, out var id))
+                    throw new InvalidCastException("Invalid Id format" + request.Id);
+
+                if (!Guid.TryParse(request.Tenant, out var tenantId))
+                    throw new InvalidCastException("Invalid Tenant format" + request.Tenant);
+
+                if (!Guid.TryParse(request.SentBy, out var sentBy))
+                    throw new InvalidCastException("Invalid SentBy format" + request.SentBy);
+
+                var command = new BroadcastNotificationCommand(id, request.EventName, request.JsonPayload, tenantId, sentBy);
 
                 logger.LogInformation("Broadcasting notification with {@Command}", command);
 
@@ -22,9 +32,10 @@ public class NotificationsService(IMediator mediator, ILogger<NotificationsServi
 
                 await responseStream.WriteAsync(new NotificationResponse
                 {
-                    Success = true,
+                    Success = result,
                     Message = "Broadcast processed"
                 });
+
             }
             catch (Exception ex)
             {
@@ -46,7 +57,7 @@ public class NotificationsService(IMediator mediator, ILogger<NotificationsServi
         {
             try
             {
-                var command =  new SendToUserNotificationCommand(Guid.Parse(request.Id), Guid.Parse(request.UserId), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
+                var command = new SendToUserNotificationCommand(Guid.Parse(request.Id), Guid.Parse(request.UserId), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
                 await mediator.Send(command, context.CancellationToken);
                 logger.LogInformation("Sending notification to user with {@Command}", command);
 
