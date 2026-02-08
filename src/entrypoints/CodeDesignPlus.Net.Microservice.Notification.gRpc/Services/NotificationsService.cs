@@ -6,18 +6,17 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CodeDesignPlus.Net.Microservice.Notification.gRpc.Services;
 
-public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier.NotifierBase
+public class NotificationsService(IMediator mediator, ILogger<NotificationsService> logger) : Notifier.NotifierBase
 {
-    public override async Task Broadcast(
-        IAsyncStreamReader<NotificationBroadcastRequest> requestStream,
-        IServerStreamWriter<NotificationResponse> responseStream,
-        ServerCallContext context)
+    public override async Task Broadcast(IAsyncStreamReader<NotificationBroadcastRequest> requestStream, IServerStreamWriter<NotificationResponse> responseStream, ServerCallContext context)
     {
         await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
         {
             try
             {
-                var command = mapper.Map<BroadcastNotificationCommand>(request);
+                var command = new BroadcastNotificationCommand(Guid.Parse(request.Id), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
+
+                logger.LogInformation("Broadcasting notification with {@Command}", command);
 
                 var result = await mediator.Send(command, context.CancellationToken);
 
@@ -47,7 +46,10 @@ public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier
         {
             try
             {
-                var command = mapper.Map<SendToUserNotificationCommand>(request);
+                var command =  new SendToUserNotificationCommand(Guid.Parse(request.Id), Guid.Parse(request.UserId), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
+                await mediator.Send(command, context.CancellationToken);
+                logger.LogInformation("Sending notification to user with {@Command}", command);
+
                 await mediator.Send(command, context.CancellationToken);
 
                 await responseStream.WriteAsync(new NotificationResponse
@@ -72,8 +74,9 @@ public class NotificationsService(IMediator mediator, IMapper mapper) : Notifier
         {
             try
             {
-                var command = mapper.Map<SendToGroupNotificationCommand>(request);
-                await mediator.Send(command, context.CancellationToken);
+                var command = new SendToGroupNotificationCommand(Guid.Parse(request.Id), request.GroupName, request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
+
+                logger.LogInformation("Sending notification to group with {@Command}", command);
 
                 await responseStream.WriteAsync(new NotificationResponse
                 {
