@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Validator - Auth Enabled</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 850px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #555; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .token-input { font-family: monospace; background: #fafafa; }
+        .status-panel { margin: 20px 0; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid transparent; }
+        .connected { background-color: #e6fffa; color: #2c7a7b; border-color: #b2f5ea; }
+        .disconnected { background-color: #fff5f5; color: #c53030; border-color: #feb2b2; }
+        .reconnecting { background-color: #fffaf0; color: #975a16; border-color: #fbd38d; }
+        #log { height: 350px; overflow-y: auto; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; display: flex; flex-direction: column-reverse; }
+        .log-entry { margin-bottom: 8px; border-left: 3px solid #636e72; padding-left: 10px; line-height: 1.4; }
+        .log-success { border-left-color: #00b894; color: #55efc4; }
+        .log-error { border-left-color: #d63031; color: #ff7675; }
+        .log-info { border-left-color: #0984e3; color: #74b9ff; }
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        .btn-connect { background: #0984e3; color: white; }
+        .btn-connect:hover { background: #0773c5; }
+        .btn-disconnect { background: #636e72; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Validador SignalR (Con Autenticación)</h2>
+    
+    <div class="input-group">
+        <label>URL del Hub:</label>
+        <input type="text" id="hubUrl" placeholder="https://tu-api.com/notificacionesHub" value="https://services.kappali.com/ms-notification/hubs/notifications">
+    </div>
+
+    <div class="input-group">
+        <label>Access Token (JWT):</label>
+        <input type="text" id="accessToken" class="token-input" placeholder="Pega aquí el token sin el prefijo 'Bearer'">
+    </div>
+
+    <div class="actions">
+        <button id="btnConnect" class="btn-connect">Conectar al Servicio</button>
+        <button id="btnDisconnect" class="btn-disconnect" disabled>Desconectar</button>
+    </div>
+
+    <div id="statusIndicator" class="status-panel disconnected">
+        ESTADO: DESCONECTADO
+    </div>
+
+    <div id="log"></div>
+</div>
+
+<script>
+    let connection = null;
+    const btnConnect = document.getElementById('btnConnect');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const hubUrlInput = document.getElementById('hubUrl');
+    const tokenInput = document.getElementById('accessToken');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const logContainer = document.getElementById('log');
+
+    function addLog(message, type = 'info') {
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        const timestamp = new Date().toLocaleTimeString();
+        entry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+        logContainer.appendChild(entry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function updateStatus(state, className) {
+        statusIndicator.innerText = `ESTADO: ${state.toUpperCase()}`;
+        statusIndicator.className = `status-panel ${className}`;
+    }
+
+    btnConnect.onclick = async () => {
+        const url = hubUrlInput.value;
+        const token = tokenInput.value.trim();
+
+        if (!url) return alert("La URL es obligatoria");
+
+        // CONFIGURACIÓN DE CONEXIÓN
+        const options = {
+            // accessTokenFactory le dice a SignalR cómo obtener el token antes de cada petición (incluyendo reconexiones)
+            accessTokenFactory: () => token ? token : null
+        };
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl(url, options)
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    addLog(`Intento de reconexión #${retryContext.previousRetryCount + 1}...`, 'info');
+                    return 5000; // Reintento cada 5 segundos
+                }
+            })
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        // EVENTOS
+        connection.onreconnecting((error) => {
+            updateStatus('Reconectando', 'reconnecting');
+            addLog(`Conexión perdida: ${error}`, 'error');
+        });
+
+        connection.onreconnected((connectionId) => {
+            updateStatus('Conectado', 'connected');
+            addLog(`Reconexión exitosa. ID: ${connectionId}`, 'success');
+        });
+
+        connection.onclose((error) => {
+            updateStatus('Desconectado', 'disconnected');
+            if (error) addLog(`Conexión cerrada con error: ${error}`, 'error');
+            btnConnect.disabled = false;
+            btnDisconnect.disabled = true;
+        });
+
+        // RECEPTOR DE MENSAJES (Ajusta los nombres según tu Hub)
+        connection.on("ReceiveNotification", (user, message) => {
+            addLog(`🔔 <b>${user}:</b> ${message}`, 'success');
+        });
+
+        connection.on("Notify", (data) => {
+            addLog(`📦 <b>Data:</b> ${JSON.stringify(data)}`, 'success');
+        });
+
+        // INICIO
+        try {
+            addLog("Iniciando conexión...", "info");
+            await connection.start();
+            addLog("Conectado correctamente.", "success");
+            updateStatus('Conectado', 'connected');
+            btnConnect.disabled = true;
+            btnDisconnect.disabled = false;
+        } catch (err) {
+            updateStatus('Error de Autenticación / Conexión', 'disconnected');
+            addLog(`Error al conectar: ${err.message}`, "error");
+            if (err.message.includes("401")) {
+                addLog("⚠️ TIP: El token parece inválido o ha expirado.", "error");
+            }
+        }
+    };
+
+    btnDisconnect.onclick = async () => {
+        if (connection) {
+            await connection.stop();
+            addLog("Desconectado por el usuario.", "info");
+        }
+    };
+</script>
+
+</body>
+</html>

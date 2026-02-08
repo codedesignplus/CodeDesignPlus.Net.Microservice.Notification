@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CodeDesignPlus.Net.Microservice.Notification.gRpc.Hubs;
 
-[Authorize] 
+//[Authorize] 
 public class MainHub : Hub
 {
     public override async Task OnConnectedAsync()
