@@ -48,11 +48,11 @@ builder.Services.AddHealthChecksServices();
 builder.Services.AddSingleton<INotifierGateway, SignalRNotifierAdapter<MainHub>>();
 
 
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis(o =>
-    {
-        o.Configuration.ChannelPrefix = RedisChannel.Literal("Notify_");
-    });
+builder.Services.AddSignalR();
+    // .AddStackExchangeRedis(o =>
+    // {
+    //     o.Configuration.ChannelPrefix = RedisChannel.Literal("Notify_");
+    // });
 
 var app = builder.Build();
 
