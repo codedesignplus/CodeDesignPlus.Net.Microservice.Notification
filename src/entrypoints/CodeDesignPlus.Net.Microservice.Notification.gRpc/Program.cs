@@ -3,8 +3,10 @@ using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.gRpc.Interceptors;
 using CodeDesignPlus.Net.Microservice.Commons.FluentValidation;
 using CodeDesignPlus.Net.Microservice.Commons.HealthChecks;
 using CodeDesignPlus.Net.Microservice.Commons.MediatR;
+using CodeDesignPlus.Net.Microservice.Notification.Domain.Services;
 using CodeDesignPlus.Net.Microservice.Notification.gRpc.Hubs;
 using CodeDesignPlus.Net.Microservice.Notification.gRpc.Services;
+using CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Services;
 using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.Observability.Extensions;
 using CodeDesignPlus.Net.RabbitMQ.Extensions;
@@ -43,6 +45,9 @@ builder.Services.AddLogger(builder.Configuration);
 builder.Services.AddCache(builder.Configuration);
 builder.Services.AddHealthChecksServices();
 
+builder.Services.AddSingleton<INotifierGateway, SignalRNotifierAdapter<MainHub>>();
+
+
 builder.Services.AddSignalR()
     .AddStackExchangeRedis(o =>
     {
@@ -52,7 +57,7 @@ builder.Services.AddSignalR()
 var app = builder.Build();
 
 app.UseHealthChecks();
-    
+
 app.UseAuth();
 
 app.MapGrpcService<NotificationsService>();

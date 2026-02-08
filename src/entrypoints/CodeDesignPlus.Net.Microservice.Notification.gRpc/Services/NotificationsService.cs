@@ -48,24 +48,32 @@ public class NotificationsService(IMediator mediator, ILogger<NotificationsServi
         }
     }
 
-    public override async Task SendToUser(
-        IAsyncStreamReader<NotificationUserRequest> requestStream,
-        IServerStreamWriter<NotificationResponse> responseStream,
-        ServerCallContext context)
+    public override async Task SendToUser(IAsyncStreamReader<NotificationUserRequest> requestStream, IServerStreamWriter<NotificationResponse> responseStream, ServerCallContext context)
     {
         await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
         {
             try
             {
-                var command = new SendToUserNotificationCommand(Guid.Parse(request.Id), Guid.Parse(request.UserId), request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
-                await mediator.Send(command, context.CancellationToken);
-                logger.LogInformation("Sending notification to user with {@Command}", command);
+                if (!Guid.TryParse(request.Id, out var id))
+                    throw new InvalidCastException("Invalid Id format" + request.Id);
 
-                await mediator.Send(command, context.CancellationToken);
+                if (!Guid.TryParse(request.Tenant, out var tenantId))
+                    throw new InvalidCastException("Invalid Tenant format" + request.Tenant);
+
+                if (!Guid.TryParse(request.SentBy, out var sentBy))
+                    throw new InvalidCastException("Invalid SentBy format" + request.SentBy);
+
+                if (!Guid.TryParse(request.UserId, out var userId))
+                    throw new InvalidCastException("Invalid UserId format" + request.UserId);
+
+
+                var command = new SendToUserNotificationCommand(id, userId, request.EventName, request.JsonPayload, tenantId, sentBy);
+
+                var result = await mediator.Send(command, context.CancellationToken);
 
                 await responseStream.WriteAsync(new NotificationResponse
                 {
-                    Success = true,
+                    Success = result,
                     Message = $"Sent to {request.UserId}"
                 });
             }
@@ -76,22 +84,29 @@ public class NotificationsService(IMediator mediator, ILogger<NotificationsServi
         }
     }
 
-    public override async Task SendToGroup(
-        IAsyncStreamReader<NotificationGroupRequest> requestStream,
-        IServerStreamWriter<NotificationResponse> responseStream,
-        ServerCallContext context)
+    public override async Task SendToGroup(IAsyncStreamReader<NotificationGroupRequest> requestStream, IServerStreamWriter<NotificationResponse> responseStream, ServerCallContext context)
     {
         await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
         {
             try
             {
-                var command = new SendToGroupNotificationCommand(Guid.Parse(request.Id), request.GroupName, request.EventName, request.JsonPayload, Guid.Parse(request.Tenant), Guid.Parse(request.SentBy));
 
-                logger.LogInformation("Sending notification to group with {@Command}", command);
+                if (!Guid.TryParse(request.Id, out var id))
+                    throw new InvalidCastException("Invalid Id format" + request.Id);
+
+                if (!Guid.TryParse(request.Tenant, out var tenantId))
+                    throw new InvalidCastException("Invalid Tenant format" + request.Tenant);
+
+                if (!Guid.TryParse(request.SentBy, out var sentBy))
+                    throw new InvalidCastException("Invalid SentBy format" + request.SentBy);
+
+                var command = new SendToGroupNotificationCommand(id, request.GroupName, request.EventName, request.JsonPayload, tenantId, sentBy);
+
+                var result = await mediator.Send(command, context.CancellationToken);
 
                 await responseStream.WriteAsync(new NotificationResponse
                 {
-                    Success = true,
+                    Success = result,
                     Message = $"Sent to group {request.GroupName}"
                 });
             }
