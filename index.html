@@ -88,9 +88,14 @@
 
         // CONFIGURACIÓN DE CONEXIÓN
         const options = {
-            // accessTokenFactory le dice a SignalR cómo obtener el token antes de cada petición (incluyendo reconexiones)
+            // 1. Saltarse la negociación
+            skipNegotiation: true, 
+            // 2. Forzar el transporte a WebSockets únicamente
+            transport: signalR.HttpTransportType.WebSockets,
+            // 3. El token se enviará automáticamente en la QueryString (?access_token=...)
             accessTokenFactory: () => token ? token : null
         };
+
 
         connection = new signalR.HubConnectionBuilder()
             .withUrl(url, options)
