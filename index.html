@@ -3,51 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SignalR Validator - Auth Enabled</title>
+    <title>SignalR Final Validator - CodeDesignPlus</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 850px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #555; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .token-input { font-family: monospace; background: #fafafa; }
-        .status-panel { margin: 20px 0; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid transparent; }
-        .connected { background-color: #e6fffa; color: #2c7a7b; border-color: #b2f5ea; }
-        .disconnected { background-color: #fff5f5; color: #c53030; border-color: #feb2b2; }
-        .reconnecting { background-color: #fffaf0; color: #975a16; border-color: #fbd38d; }
-        #log { height: 350px; overflow-y: auto; background: #2d3436; color: #dfe6e9; padding: 15px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; display: flex; flex-direction: column-reverse; }
-        .log-entry { margin-bottom: 8px; border-left: 3px solid #636e72; padding-left: 10px; line-height: 1.4; }
-        .log-success { border-left-color: #00b894; color: #55efc4; }
-        .log-error { border-left-color: #d63031; color: #ff7675; }
-        .log-info { border-left-color: #0984e3; color: #74b9ff; }
-        .actions { display: flex; gap: 10px; margin-top: 10px; }
-        button { flex: 1; padding: 12px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        .btn-connect { background: #0984e3; color: white; }
-        .btn-connect:hover { background: #0773c5; }
-        .btn-disconnect { background: #636e72; color: white; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { color: #1a365d; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+        
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 0.85em; color: #4a5568; }
+        input { padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; transition: border 0.2s; }
+        input:focus { border-color: #3182ce; outline: none; }
+        
+        .full-width { grid-column: span 2; }
+        .token-input { font-family: 'Courier New', Courier, monospace; background: #f8fafc; }
+
+        .actions { display: flex; gap: 10px; margin: 20px 0; }
+        button { flex: 1; padding: 14px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; transition: 0.2s; }
+        #btnConnect { background: #3182ce; color: white; }
+        #btnConnect:hover { background: #2b6cb0; }
+        #btnDisconnect { background: #718096; color: white; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .status-panel { padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px; border: 1px solid transparent; }
+        .connected { background-color: #c6f6d5; color: #22543d; border-color: #9ae6b4; }
+        .disconnected { background-color: #fed7d7; color: #822727; border-color: #feb2b2; }
+        .reconnecting { background-color: #feebc8; color: #744210; border-color: #fbd38d; }
+
+        #log { height: 400px; overflow-y: auto; background: #1a202c; color: #edf2f7; padding: 15px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.5; }
+        .log-entry { margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #2d3748; }
+        .log-success { color: #68d391; }
+        .log-error { color: #fc8181; }
+        .log-info { color: #63b3ed; }
+        .log-warn { color: #f6ad55; }
+        .timestamp { color: #a0aec0; margin-right: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Validador SignalR (Con Autenticación)</h2>
+    <h2>Validador de Notificaciones (WebSockets Forzado)</h2>
     
-    <div class="input-group">
-        <label>URL del Hub:</label>
-        <input type="text" id="hubUrl" placeholder="https://tu-api.com/notificacionesHub" value="https://services.kappali.com/ms-notification/hubs/notifications">
-    </div>
-
-    <div class="input-group">
-        <label>Access Token (JWT):</label>
-        <input type="text" id="accessToken" class="token-input" placeholder="Pega aquí el token sin el prefijo 'Bearer'">
+    <div class="field-row">
+        <div class="input-group full-width">
+            <label>URL del Hub:</label>
+            <input type="text" id="hubUrl" placeholder="https://api.tudominio.com/hubs/notifications" value="https://services.kappali.com/ms-notification/hubs/notifications">
+        </div>
+        <div class="input-group">
+            <label>Tenant ID (GUID):</label>
+            <input type="text" id="tenantId" placeholder="00000000-0000-0000-0000-000000000000">
+        </div>
+        <div class="input-group">
+            <label>Nombre del Evento a Escuchar:</label>
+            <input type="text" id="eventName" value="ReceiveNotification">
+        </div>
+        <div class="input-group full-width">
+            <label>Access Token (JWT):</label>
+            <input type="text" id="accessToken" class="token-input" placeholder="Pega el token JWT aquí...">
+        </div>
     </div>
 
     <div class="actions">
-        <button id="btnConnect" class="btn-connect">Conectar al Servicio</button>
-        <button id="btnDisconnect" class="btn-disconnect" disabled>Desconectar</button>
+        <button id="btnConnect">Conectar con WebSockets</button>
+        <button id="btnDisconnect" disabled>Desconectar</button>
     </div>
 
     <div id="statusIndicator" class="status-panel disconnected">
@@ -62,7 +82,9 @@
     const btnConnect = document.getElementById('btnConnect');
     const btnDisconnect = document.getElementById('btnDisconnect');
     const hubUrlInput = document.getElementById('hubUrl');
+    const tenantInput = document.getElementById('tenantId');
     const tokenInput = document.getElementById('accessToken');
+    const eventNameInput = document.getElementById('eventName');
     const statusIndicator = document.getElementById('statusIndicator');
     const logContainer = document.getElementById('log');
 
@@ -70,9 +92,8 @@
         const entry = document.createElement('div');
         entry.className = `log-entry log-${type}`;
         const timestamp = new Date().toLocaleTimeString();
-        entry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
-        logContainer.appendChild(entry);
-        logContainer.scrollTop = logContainer.scrollHeight;
+        entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+        logContainer.prepend(entry); // Los nuevos logs aparecen arriba
     }
 
     function updateStatus(state, className) {
@@ -81,81 +102,88 @@
     }
 
     btnConnect.onclick = async () => {
-        const url = hubUrlInput.value;
+        const baseUrl = hubUrlInput.value.trim();
+        const tenantId = tenantInput.value.trim();
         const token = tokenInput.value.trim();
 
-        if (!url) return alert("La URL es obligatoria");
+        if (!baseUrl) return alert("La URL es obligatoria");
 
-        // CONFIGURACIÓN DE CONEXIÓN
-        const options = {
-            // 1. Saltarse la negociación
-            skipNegotiation: true, 
-            // 2. Forzar el transporte a WebSockets únicamente
-            transport: signalR.HttpTransportType.WebSockets,
-            // 3. El token se enviará automáticamente en la QueryString (?access_token=...)
-            accessTokenFactory: () => token ? token : null
-        };
+        // Construimos la URL inyectando el Tenant en la Query String
+        // Esto permite que el servidor lo lea incluso en WebSockets puros
+        const finalUrl = tenantId 
+            ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}x-tenant=${tenantId}`
+            : baseUrl;
 
+        addLog(`Iniciando conexión a: ${finalUrl}`, 'info');
 
+        // CONFIGURACIÓN OFICIAL
         connection = new signalR.HubConnectionBuilder()
-            .withUrl(url, options)
+            .withUrl(finalUrl, {
+                // FORZAMOS WEBSOCKETS Y SALTAMOS NEGOCIACIÓN
+                skipNegotiation: true,
+                transport: signalR.HttpTransportType.WebSockets,
+                accessTokenFactory: () => token ? token : null
+            })
             .withAutomaticReconnect({
                 nextRetryDelayInMilliseconds: retryContext => {
-                    addLog(`Intento de reconexión #${retryContext.previousRetryCount + 1}...`, 'info');
-                    return 5000; // Reintento cada 5 segundos
+                    addLog(`Intento de reconexión #${retryContext.previousRetryCount + 1}...`, 'warn');
+                    return 5000; 
                 }
             })
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        // EVENTOS
+        // EVENTOS DE ESTADO
         connection.onreconnecting((error) => {
             updateStatus('Reconectando', 'reconnecting');
-            addLog(`Conexión perdida: ${error}`, 'error');
+            addLog(`Conexión perdida, intentando recuperar... Error: ${error}`, 'warn');
         });
 
         connection.onreconnected((connectionId) => {
             updateStatus('Conectado', 'connected');
-            addLog(`Reconexión exitosa. ID: ${connectionId}`, 'success');
+            addLog(`Reconexión exitosa. Nuevo ConnectionID: ${connectionId}`, 'success');
         });
 
         connection.onclose((error) => {
             updateStatus('Desconectado', 'disconnected');
-            if (error) addLog(`Conexión cerrada con error: ${error}`, 'error');
+            if (error) addLog(`Conexión cerrada por error fatal: ${error}`, 'error');
+            else addLog("Conexión cerrada limpiamente.", "info");
             btnConnect.disabled = false;
             btnDisconnect.disabled = true;
         });
 
-        // RECEPTOR DE MENSAJES (Ajusta los nombres según tu Hub)
-        connection.on("ReceiveNotification", (user, message) => {
-            addLog(`🔔 <b>${user}:</b> ${message}`, 'success');
+        // ESCUCHA DE NOTIFICACIONES
+        const eventToListen = eventNameInput.value || "ReceiveNotification";
+        
+        connection.on(eventToListen, (data1, data2) => {
+            // Manejamos si vienen 1 o 2 parámetros (user, message o solo payload)
+            const payload = data2 !== undefined ? `${data1}: ${JSON.stringify(data2)}` : JSON.stringify(data1);
+            addLog(`🔔 <b>EVENTO [${eventToListen}]:</b> ${payload}`, 'success');
         });
 
+        // Receptor genérico de depuración
         connection.on("Notify", (data) => {
-            addLog(`📦 <b>Data:</b> ${JSON.stringify(data)}`, 'success');
+            addLog(`📦 <b>DATA RECIBIDA:</b> ${JSON.stringify(data)}`, 'success');
         });
 
-        // INICIO
+        // INICIO DE CONEXIÓN
         try {
-            addLog("Iniciando conexión...", "info");
             await connection.start();
-            addLog("Conectado correctamente.", "success");
+            addLog("Conexión establecida correctamente vía WebSockets.", "success");
             updateStatus('Conectado', 'connected');
             btnConnect.disabled = true;
             btnDisconnect.disabled = false;
         } catch (err) {
-            updateStatus('Error de Autenticación / Conexión', 'disconnected');
-            addLog(`Error al conectar: ${err.message}`, "error");
-            if (err.message.includes("401")) {
-                addLog("⚠️ TIP: El token parece inválido o ha expirado.", "error");
-            }
+            updateStatus('Error de Conexión', 'disconnected');
+            addLog(`Error crítico al conectar: ${err.message}`, "error");
+            console.error(err);
         }
     };
 
     btnDisconnect.onclick = async () => {
         if (connection) {
             await connection.stop();
-            addLog("Desconectado por el usuario.", "info");
+            addLog("Desconexión solicitada por el usuario.", "info");
         }
     };
 </script>
