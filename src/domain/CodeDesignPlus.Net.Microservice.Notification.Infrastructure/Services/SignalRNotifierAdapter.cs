@@ -9,7 +9,6 @@ public class SignalRNotifierAdapter<THub>(IHubContext<THub> hubContext)
 {
     public async Task SendToUserAsync(Guid userId, string method, string payload, CancellationToken ct)
     {
-        // TODO: Asegurar que el 'userId' coincide con el Claim 'sub' o UserIdentifier del JWT del frontend
         await hubContext.Clients.User(userId.ToString()).SendAsync(method, payload, cancellationToken: ct);
     }
 
