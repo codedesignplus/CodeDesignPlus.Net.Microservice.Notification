@@ -46,7 +46,7 @@ builder.Services.AddCache(builder.Configuration);
 builder.Services.AddHealthChecksServices();
 
 builder.Services.AddSingleton<INotifierGateway, SignalRNotifierAdapter<MainHub>>();
-
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
 builder.Services.AddSignalR();
     // .AddStackExchangeRedis(o =>

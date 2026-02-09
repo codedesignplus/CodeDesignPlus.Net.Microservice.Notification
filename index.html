@@ -53,7 +53,7 @@
         </div>
         <div class="input-group">
             <label>Tenant ID (GUID):</label>
-            <input type="text" id="tenantId" placeholder="00000000-0000-0000-0000-000000000000">
+            <input type="text" id="tenantId" value="4d416169-50c9-4777-ad8f-a04d7b3fb80a">
         </div>
         <div class="input-group">
             <label>Nombre del Evento a Escuchar:</label>
@@ -106,7 +106,8 @@
         const tenantId = tenantInput.value.trim();
         const token = tokenInput.value.trim();
 
-        if (!baseUrl) return alert("La URL es obligatoria");
+        if (!baseUrl) 
+            return alert("La URL es obligatoria");
 
         // Construimos la URL inyectando el Tenant en la Query String
         // Esto permite que el servidor lo lea incluso en WebSockets puros
