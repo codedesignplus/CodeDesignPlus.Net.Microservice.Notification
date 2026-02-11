@@ -18,7 +18,10 @@ public class MainHub(IUserContext context, ILogger<MainHub> logger) : Hub
         logger.LogWarning("Tenant connected: {TenantId}", context.Tenant);
 
         if (context.Tenant != Guid.Empty)
+        {
+            logger.LogWarning("Adding connection {ConnectionId} to tenant group {TenantGroup}", Context.ConnectionId, context.Tenant);
             await Groups.AddToGroupAsync(Context.ConnectionId, $"{TenantGroupPrefix}:{context.Tenant}");
+        }
 
         await base.OnConnectedAsync();
     }
