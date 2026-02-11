@@ -11,6 +11,6 @@ public class UserIdProvider(ILogger<UserIdProvider> logger) : IUserIdProvider
         logger.LogWarning("Getting user ID for connection {ConnectionId}", connection.ConnectionId);
         logger.LogWarning("User ID for connection {ConnectionId} is {UserId}", connection.ConnectionId, connection.User?.FindFirst(ClaimTypes.UserId)?.Value);
 
-        return connection.User?.FindFirst(ClaimTypes.UserId)?.Value;
+        return connection.User?.FindFirst(ClaimTypes.UserId)?.Value.ToLower();
     }
 }
