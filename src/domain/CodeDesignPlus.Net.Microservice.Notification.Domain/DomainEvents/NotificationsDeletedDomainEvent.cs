@@ -1,6 +1,6 @@
 namespace CodeDesignPlus.Net.Microservice.Notification.Domain.DomainEvents;
 
-[EventKey<NotificationsAggregate>(1, "NotificationsDeletedDomainEvent", autoCreate: false)]
+[EventKey<NotificationsAggregate>(1, "NotificationsDeletedDomainEvent")]
 public class NotificationsDeletedDomainEvent(
      Guid aggregateId,
      Guid? eventId = null,

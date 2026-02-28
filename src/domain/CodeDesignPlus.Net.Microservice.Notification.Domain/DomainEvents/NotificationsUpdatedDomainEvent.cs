@@ -1,6 +1,6 @@
 namespace CodeDesignPlus.Net.Microservice.Notification.Domain.DomainEvents;
 
-[EventKey<NotificationsAggregate>(1, "NotificationsUpdatedDomainEvent", autoCreate: false)]
+[EventKey<NotificationsAggregate>(1, "NotificationsUpdatedDomainEvent")]
 public class NotificationsUpdatedDomainEvent(
      Guid aggregateId,
      Guid? eventId = null,
