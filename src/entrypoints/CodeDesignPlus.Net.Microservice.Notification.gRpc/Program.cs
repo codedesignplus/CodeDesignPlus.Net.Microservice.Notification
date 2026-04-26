@@ -17,7 +17,7 @@ using CodeDesignPlus.Net.Vault.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateSlimBuilder(args);
 
 Serilog.Debugging.SelfLog.Enable(Console.Error);
 
