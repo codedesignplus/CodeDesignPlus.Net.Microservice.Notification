@@ -10,6 +10,7 @@ using CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Services;
 using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.Observability.Extensions;
 using CodeDesignPlus.Net.RabbitMQ.Extensions;
+using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Cache.Extensions;
 using CodeDesignPlus.Net.Redis.Extensions;
 using CodeDesignPlus.Net.Security.Extensions;
@@ -48,13 +49,28 @@ builder.Services.AddHealthChecksServices();
 builder.Services.AddSingleton<INotifierGateway, SignalRNotifierAdapter<MainHub>>();
 builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
-builder.Services.AddSignalR();
-    // .AddStackExchangeRedis(o =>
-    // {
-    //     o.Configuration.ChannelPrefix = RedisChannel.Literal("Notify_");
-    // });
+// SignalR con Redis Backplane usando IRedisFactory del SDK CodeDesignPlus.Net.Redis.
+// El ConnectionFactory se resuelve post-build capturando app.Services,
+// lo que garantiza que IRedisFactory ya fue inicializado con la configuracion de Vault.
+IServiceProvider? appServices = null;
+
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(o =>
+    {
+        o.Configuration.ChannelPrefix = RedisChannel.Literal("Notify_");
+        o.ConnectionFactory = _ =>
+        {
+            var factory = appServices!.GetRequiredService<IRedisFactory>();
+            var redis = factory.Create(FactoryConst.RedisCore);
+
+            return Task.FromResult(redis.Connection);
+        };
+    });
 
 var app = builder.Build();
+
+// Asignar el IServiceProvider del app construido para que el ConnectionFactory lo use.
+appServices = app.Services;
 
 app.UseHealthChecks();
 
