@@ -2,6 +2,12 @@
 
 **Real-time notification orchestration service** built with .NET 9, implementing Clean Architecture, DDD, and CQRS patterns. This microservice provides centralized notification delivery through multiple channels (SignalR WebSockets, gRPC Streaming) with comprehensive tracking and tenant isolation.
 
+## What is this microservice?
+
+The Notification microservice delivers real-time alerts to users connected to the platform via WebSocket (SignalR). It solves the problem of keeping users informed instantly when something relevant happens: a new invoice is issued, a reservation is confirmed, a penalty is emitted, or an administrator broadcasts an announcement. Residents, property owners, and administrators all receive notifications tailored to their role. Other microservices publish domain events, and Notification picks them up to push instant messages to the right people without requiring a page refresh.
+
+---
+
 ## 📋 Overview
 
 The Notification microservice acts as a central hub for real-time event distribution across the ExcellenceForge platform. It ingests notification requests via gRPC bidirectional streaming and distributes them to connected web clients through SignalR, with optional Redis backplane for horizontal scaling.
