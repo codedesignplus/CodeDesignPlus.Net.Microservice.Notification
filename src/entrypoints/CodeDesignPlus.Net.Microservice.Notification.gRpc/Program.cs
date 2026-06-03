@@ -17,6 +17,7 @@ using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.Vault.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
+using CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -42,6 +43,7 @@ builder.Services.AddRedis(builder.Configuration);
 builder.Services.AddRabbitMQ<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
 builder.Services.AddSecurity(builder.Configuration);
 builder.Services.AddObservability(builder.Configuration, builder.Environment);
+builder.Services.AddGrpcClients(builder.Configuration);
 builder.Services.AddLogger(builder.Configuration);
 builder.Services.AddCache(builder.Configuration);
 builder.Services.AddHealthChecksServices();
