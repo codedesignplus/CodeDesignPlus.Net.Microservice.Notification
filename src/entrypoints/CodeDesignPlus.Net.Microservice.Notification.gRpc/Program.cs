@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Observability.Interceptors;
 using CodeDesignPlus.Net.Logger.Extensions;
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.gRpc.Interceptors;
 using CodeDesignPlus.Net.Microservice.Commons.FluentValidation;
@@ -18,6 +19,7 @@ using CodeDesignPlus.Net.Vault.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 using CodeDesignPlus.Net.gRpc.Clients.Extensions;
+using CodeDesignPlus.Net.Hangfire.Extensions;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -30,6 +32,7 @@ builder.Configuration.AddVault();
 builder.Services.AddGrpc(options =>
 {
     options.Interceptors.Add<ErrorInterceptor>();
+    options.Interceptors.Add<TraceContextInterceptor>();
 });
 builder.Services.AddGrpcReflection();
 
@@ -40,6 +43,7 @@ builder.Services.AddFluentValidation();
 
 builder.Services.AddMongo<CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Startup>(builder.Configuration);
 builder.Services.AddRedis(builder.Configuration);
+builder.Services.AddHangfire<Program>(builder.Configuration);
 builder.Services.AddRabbitMQ<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
 builder.Services.AddSecurity(builder.Configuration);
 builder.Services.AddObservability(builder.Configuration, builder.Environment);
@@ -50,6 +54,7 @@ builder.Services.AddHealthChecksServices();
 
 builder.Services.AddSingleton<INotifierGateway, SignalRNotifierAdapter<MainHub>>();
 builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
+builder.Services.AddScoped<INotificationDeliveryService, SignalRNotificationDeliveryService>();
 
 // SignalR con Redis Backplane usando IRedisFactory del SDK CodeDesignPlus.Net.Redis.
 // El ConnectionFactory se resuelve post-build capturando app.Services,
@@ -75,6 +80,8 @@ var app = builder.Build();
 appServices = app.Services;
 
 app.UseHealthChecks();
+
+app.UseHangfireDashboard<Program>(app.Configuration);
 
 app.UseAuth();
 

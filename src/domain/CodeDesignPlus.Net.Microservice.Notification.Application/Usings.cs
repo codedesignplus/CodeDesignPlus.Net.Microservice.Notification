@@ -12,6 +12,7 @@ global using CodeDesignPlus.Net.Serializers;
 global using NodaTime;
 global using CodeDesignPlus.Net.Cache.Abstractions;
 global using CodeDesignPlus.Net.Microservice.Notification.Domain;
+global using Microsoft.Extensions.Logging;
 
 global using CodeDesignPlus.Net.Microservice.Notification.Domain.Repositories;
 

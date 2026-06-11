@@ -2,7 +2,7 @@ using CodeDesignPlus.Net.Microservice.Notification.Domain.Enums;
 
 namespace CodeDesignPlus.Net.Microservice.Notification.Domain;
 
-public class NotificationsAggregate(Guid id) : AggregateRoot(id)
+public class NotificationsAggregate(Guid id) : AggregateRootBase(id)
 {
     /// <summary>
     /// User identifier to whom the notification is targeted
@@ -16,6 +16,10 @@ public class NotificationsAggregate(Guid id) : AggregateRoot(id)
     /// Name of the group to which the notification is targeted
     /// </summary>
     public string? GroupName { get; private set; }
+    /// <summary>
+    /// Name of the event that triggered this notification (e.g., "OrderPaymentCompleted", "UserConfigured")
+    /// </summary>
+    public string? EventName { get; private set; }
     /// <summary>
     /// Preview or snippet of the notification payload, useful if the full payload is large.
     /// </summary>
@@ -32,33 +36,43 @@ public class NotificationsAggregate(Guid id) : AggregateRoot(id)
     /// Reason for failure if the notification was not sent successfully
     /// </summary>
     public string? FailureReason { get; private set; }
+    /// <summary>
+    /// Timestamp when the notification was delivered to the client
+    /// </summary>
+    public Instant? DeliveredAt { get; private set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public Guid Tenant { get; private set; }
 
-    public static NotificationsAggregate Create(Guid id, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
+    public static NotificationsAggregate Create(Guid id, string eventName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
         var aggregate = new NotificationsAggregate(id)
         {
+            EventName = eventName,
             Type = type,
             PayloadPreview = payloadPreview,
             SentAt = SystemClock.Instance.GetCurrentInstant(),
             CreatedAt = SystemClock.Instance.GetCurrentInstant(),
-            CreatedBy = createdBy
+            CreatedBy = createdBy,
+            Tenant = tenant
         };
 
         return aggregate;
     }
 
-    public static NotificationsAggregate Create(Guid id, Guid? userId, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
+    public static NotificationsAggregate Create(Guid id, Guid? userId, string eventName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
-        var aggregate = Create(id, type, payloadPreview, tenant, createdBy);
+        var aggregate = Create(id, eventName, type, payloadPreview, tenant, createdBy);
 
         aggregate.UserId = userId;
 
         return aggregate;
     }
 
-    public static NotificationsAggregate Create(Guid id, string groupName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
+    public static NotificationsAggregate Create(Guid id, string groupName, string eventName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
-        var aggregate = Create(id, type, payloadPreview, tenant, createdBy);
+        var aggregate = Create(id, eventName, type, payloadPreview, tenant, createdBy);
 
         aggregate.GroupName = groupName;
 
@@ -79,5 +93,14 @@ public class NotificationsAggregate(Guid id) : AggregateRoot(id)
         FailureReason = reason;
         UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         UpdatedBy = updateBy;
+    }
+
+    public void MarkAsDelivered(Instant deliveredAt, Guid updateBy)
+    {
+        DomainGuard.IsNotNull(DeliveredAt, Errors.NotificationAlreadyDelivered);
+
+        DeliveredAt = deliveredAt;
+        UpdatedBy = updateBy;
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
     }
 }

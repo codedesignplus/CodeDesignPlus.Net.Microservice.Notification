@@ -9,7 +9,7 @@ public class SendToGroupNotificationCommandHandler(INotifierGateway notifier, IN
 {
     public async Task<bool> Handle(SendToGroupNotificationCommand request, CancellationToken cancellationToken)
     {
-        var aggregate = NotificationsAggregate.Create(request.Id, request.GroupName, NotificationType.Group, request.JsonPayload, request.Tenant, request.SentBy);
+        var aggregate = NotificationsAggregate.Create(request.Id, request.GroupName, request.EventName, NotificationType.Group, request.JsonPayload, request.Tenant, request.SentBy);
 
         try
         {

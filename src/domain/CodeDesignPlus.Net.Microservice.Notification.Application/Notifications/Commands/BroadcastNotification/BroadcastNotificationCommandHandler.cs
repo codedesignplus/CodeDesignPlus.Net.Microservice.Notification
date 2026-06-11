@@ -7,7 +7,7 @@ public class BroadcastNotificationCommandHandler(INotifierGateway notifier, INot
 {
     public async Task<bool> Handle(BroadcastNotificationCommand request, CancellationToken cancellationToken)
     {
-        var aggregate = NotificationsAggregate.Create(request.Id, NotificationType.Broadcast, request.JsonPayload, request.Tenant, request.SentBy);
+        var aggregate = NotificationsAggregate.Create(request.Id, request.EventName, NotificationType.Broadcast, request.JsonPayload, request.Tenant, request.SentBy);
 
         try
         {

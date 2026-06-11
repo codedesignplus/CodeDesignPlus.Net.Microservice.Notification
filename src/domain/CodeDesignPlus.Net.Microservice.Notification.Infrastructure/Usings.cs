@@ -10,6 +10,5 @@ global using CodeDesignPlus.Net.Serializers;
 global using NodaTime;
 
 global using CodeDesignPlus.Net.Microservice.Notification.Domain;
-
-
+global using CodeDesignPlus.Net.Microservice.Notification.Domain.Enums;
 global using CodeDesignPlus.Net.Microservice.Notification.Domain.Repositories;

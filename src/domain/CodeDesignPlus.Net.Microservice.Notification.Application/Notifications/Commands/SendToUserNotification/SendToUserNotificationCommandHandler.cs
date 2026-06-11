@@ -8,7 +8,7 @@ public class SendToUserNotificationCommandHandler(INotifierGateway notifier, INo
 {
     public async Task<bool> Handle(SendToUserNotificationCommand request, CancellationToken cancellationToken)
     {
-        var aggregate = NotificationsAggregate.Create(request.Id, request.UserId, NotificationType.User, request.JsonPayload, request.Tenant, request.SentBy);
+        var aggregate = NotificationsAggregate.Create(request.Id, request.UserId, request.EventName, NotificationType.User, request.JsonPayload, request.Tenant, request.SentBy);
 
         try
         {

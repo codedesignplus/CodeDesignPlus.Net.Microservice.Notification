@@ -7,6 +7,7 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure
     {
         public void Initialize(IServiceCollection services, IConfiguration configuration)
         {
+            // INotificationDeliveryService is registered in the gRpc entrypoint (SignalRNotificationDeliveryService)
         }
     }
 }
