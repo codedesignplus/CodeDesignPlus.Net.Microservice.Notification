@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Microservice.Notification.Domain.Constants;
 using CodeDesignPlus.Net.Microservice.Notification.Domain.Enums;
 using CodeDesignPlus.Net.Microservice.Notification.Domain.Services;
 
@@ -13,7 +14,9 @@ public class SendToGroupNotificationCommandHandler(INotifierGateway notifier, IN
 
         try
         {
-            await notifier.SendToGroupAsync(request.GroupName, request.EventName, request.JsonPayload, cancellationToken);
+            var qualifiedGroup = GroupConstants.BuildTenantGroupName(request.Tenant, request.GroupName);
+
+            await notifier.SendToGroupAsync(qualifiedGroup, request.EventName, request.JsonPayload, cancellationToken);
 
             aggregate.MarkAsSent(Guid.Empty);
         }

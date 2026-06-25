@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.Hangfire.Abstractions;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.DeliverPendingNotifications;
+using CodeDesignPlus.Net.Microservice.Notification.Domain.Constants;
 using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -9,8 +10,6 @@ namespace CodeDesignPlus.Net.Microservice.Notification.gRpc.Hubs;
 [Authorize]
 public class MainHub(IUserContext context, IJobService jobService, ILogger<MainHub> logger) : Hub
 {
-    private const string TenantGroupPrefix = "Tenant";
-
     public override async Task OnConnectedAsync()
     {
         logger.LogInformation("Client connected: {ConnectionId} | User Id: {UserId} | Tenant Id: {TenantId}", Context.ConnectionId, context.IdUser, context.Tenant);
@@ -19,7 +18,7 @@ public class MainHub(IUserContext context, IJobService jobService, ILogger<MainH
         {
             logger.LogInformation("Adding connection {ConnectionId} to tenant group {TenantGroup}", Context.ConnectionId, context.Tenant);
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"{TenantGroupPrefix}:{context.Tenant}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"{GroupConstants.TenantGroupPrefix}:{context.Tenant}");
         }
 
         if (context.IdUser != Guid.Empty)
@@ -35,11 +34,11 @@ public class MainHub(IUserContext context, IJobService jobService, ILogger<MainH
 
     public async Task JoinGroup(string groupName)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"{TenantGroupPrefix}:{context.Tenant}:{groupName}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, GroupConstants.BuildTenantGroupName(context.Tenant, groupName));
     }
 
     public async Task LeaveGroup(string groupName)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{TenantGroupPrefix}:{context.Tenant}:{groupName}");
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupConstants.BuildTenantGroupName(context.Tenant, groupName));
     }
 }
