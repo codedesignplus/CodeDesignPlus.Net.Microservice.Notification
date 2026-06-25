@@ -34,11 +34,16 @@ public class MainHub(IUserContext context, IJobService jobService, ILogger<MainH
 
     public async Task JoinGroup(string groupName)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, GroupConstants.BuildTenantGroupName(context.Tenant, groupName));
+        var group = GroupConstants.BuildTenantGroupName(context.Tenant, groupName);
+        logger.LogWarning("Added connection id {ConnectionId} to Group {Group}", Context.ConnectionId, group);
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, group);
     }
 
     public async Task LeaveGroup(string groupName)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupConstants.BuildTenantGroupName(context.Tenant, groupName));
+        var group = GroupConstants.BuildTenantGroupName(context.Tenant, groupName);
+        logger.LogWarning("Removed connection id {ConnectionId} to Group {Group}", Context.ConnectionId, group);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
     }
 }
