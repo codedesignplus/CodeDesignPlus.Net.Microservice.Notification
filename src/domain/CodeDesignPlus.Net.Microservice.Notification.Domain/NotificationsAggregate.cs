@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.Microservice.Notification.Domain.Enums;
+using CodeDesignPlus.Net.Microservice.Notification.Domain.ValueObjects;
 
 namespace CodeDesignPlus.Net.Microservice.Notification.Domain;
 
@@ -45,6 +46,24 @@ public class NotificationsAggregate(Guid id) : AggregateRootBase(id)
     /// </summary>
     public Guid Tenant { get; private set; }
 
+    /// <summary>A quien va dirigido. Nulo en las notificaciones del canal efimero.</summary>
+    public Audience? Audience { get; private set; }
+
+    /// <summary>Clave estable del tipo de aviso, ej. <c>invoice.issued</c>.</summary>
+    public string? Kind { get; private set; }
+
+    /// <summary>Titulo de respaldo, para cuando el frontend no conoce el <see cref="Kind"/>.</summary>
+    public string? Title { get; private set; }
+
+    /// <summary>Cuerpo de respaldo.</summary>
+    public string? Body { get; private set; }
+
+    /// <summary>A donde lleva el clic en la bandeja. Nulo si el aviso no lleva a ninguna parte.</summary>
+    public ResourceRef? Resource { get; private set; }
+
+    /// <summary>Cuando ocurrio el hecho, que no es cuando se guardo el aviso.</summary>
+    public Instant OccurredAt { get; private set; }
+
     public static NotificationsAggregate Create(Guid id, string eventName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
         var aggregate = new NotificationsAggregate(id)
@@ -77,6 +96,36 @@ public class NotificationsAggregate(Guid id) : AggregateRootBase(id)
         aggregate.GroupName = groupName;
 
         return aggregate;
+    }
+
+    /// <summary>
+    /// Crea un aviso durable: lo que entra a la bandeja y sobrevive al reinicio del navegador.
+    /// </summary>
+    /// <remarks>
+    /// Es lo contrario del canal efimero, que no persiste nada. La pregunta que decide cual usar, por cada
+    /// punto de llamada: <b>le sirve esto a alguien que no estaba mirando la pantalla?</b>
+    /// </remarks>
+    public static NotificationsAggregate CreateNotice(
+        Guid id, Audience audience, string kind, string title, string body,
+        ResourceRef? resource, string? payload, Guid tenant, Guid createdBy, Instant occurredAt)
+    {
+        DomainGuard.IsNullOrEmpty(kind, Errors.NotificationKindIsRequired);
+        DomainGuard.IsNullOrEmpty(title, Errors.NotificationTitleIsRequired);
+
+        return new NotificationsAggregate(id)
+        {
+            Audience = audience,
+            Kind = kind,
+            Title = title,
+            Body = body,
+            Resource = resource,
+            PayloadPreview = payload,
+            OccurredAt = occurredAt,
+            SentAt = SystemClock.Instance.GetCurrentInstant(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
+            CreatedBy = createdBy,
+            Tenant = tenant
+        };
     }
 
     public void MarkAsSent(Guid? updateBy)

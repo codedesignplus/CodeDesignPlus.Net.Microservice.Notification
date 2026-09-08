@@ -85,7 +85,11 @@ app.UseHangfireDashboard<Program>(app.Configuration);
 
 app.UseAuth();
 
+// El Notifier viejo sigue vivo hasta que los 60 puntos de llamada de los 13 micros migren: no pueden
+// cambiar de contrato a la vez, y quitarlo antes deja ciego a todo el que aun no se haya desplegado.
 app.MapGrpcService<NotificationsService>();
+app.MapGrpcService<LiveChannelService>();
+app.MapGrpcService<InboxService>();
 app.MapHub<MainHub>("/hubs/notifications");
 
 if (app.Environment.IsDevelopment())
