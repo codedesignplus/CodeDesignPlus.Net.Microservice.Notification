@@ -9,7 +9,7 @@ public interface INotificationsRepository : IRepositoryBase
     /// <param name="userId">ID del usuario</param>
     /// <param name="cancellationToken">Token de cancelación</param>
     /// <returns>Lista de notificaciones con DeliveredAt == null y Type == User</returns>
-    Task<List<NotificationsAggregate>> GetPendingByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<List<NotificationsAggregate>> GetPendingByUserIdAsync(Guid tenant, Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Marca una notificación como entregada.

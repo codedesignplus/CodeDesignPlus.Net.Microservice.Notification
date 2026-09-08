@@ -28,7 +28,7 @@ public class MainHub(IUserContext context, IJobService jobService, IRedisFactory
 
         if (context.IdUser != Guid.Empty && await ShouldReplayAsync())
         {
-            var command = new DeliverPendingNotificationsCommand(context.IdUser, Context.ConnectionId);
+            var command = new DeliverPendingNotificationsCommand(context.Tenant, context.IdUser, Context.ConnectionId);
             var jobId = jobService.Enqueue<IMediator>(mediator => mediator.Send(command, default));
 
             logger.LogInformation("Enqueued pending notifications delivery command via job {JobId} for user {UserId}, connection {ConnectionId}", jobId, context.IdUser, Context.ConnectionId);

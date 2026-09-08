@@ -3,9 +3,12 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Repositori
 public class NotificationsRepository(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<NotificationsRepository> logger)
     : RepositoryBase(serviceProvider, mongoOptions, logger), INotificationsRepository
 {
-    public async Task<List<NotificationsAggregate>> GetPendingByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<NotificationsAggregate>> GetPendingByUserIdAsync(Guid tenant, Guid userId, CancellationToken cancellationToken)
     {
         var filter = Builders<NotificationsAggregate>.Filter.And(
+            // Sin el tenant, un usuario que pertenece a dos copropiedades recibe al conectarse los
+            // pendientes de las dos.
+            Builders<NotificationsAggregate>.Filter.Eq(x => x.Tenant, tenant),
             Builders<NotificationsAggregate>.Filter.Eq(x => x.UserId, userId),
             Builders<NotificationsAggregate>.Filter.Eq(x => x.Type, NotificationType.User),
             Builders<NotificationsAggregate>.Filter.Eq(x => x.WasSuccess, true),

@@ -10,22 +10,20 @@ namespace CodeDesignPlus.Net.Microservice.Notification.gRpc.Services;
 /// </summary>
 public class SignalRNotificationDeliveryService(IHubContext<MainHub> hubContext) : INotificationDeliveryService
 {
-    public async Task DeliverToConnectionAsync(
+    /// <summary>Reenvia un aviso pendiente a una conexion concreta.</summary>
+    /// <remarks>
+    /// El mismo sobre que la entrega en vivo: el JSON crudo, y nada mas.
+    /// <para>
+    /// Antes mandaba <c>{ notificationId, eventName, payload }</c>. El frontend busca <c>jsonPayload</c>,
+    /// no lo encontraba, y entregaba el sobre entero como si fuera el payload: todos los campos del
+    /// aviso llegaban <c>undefined</c>, sin un solo error en ninguna de las dos puntas.
+    /// </para>
+    /// </remarks>
+    public Task DeliverToConnectionAsync(
         string connectionId,
         Guid notificationId,
         string eventName,
         string? payloadJson,
         CancellationToken cancellationToken)
-    {
-        var payload = string.IsNullOrEmpty(payloadJson)
-            ? null
-            : System.Text.Json.JsonSerializer.Deserialize<object>(payloadJson);
-
-        await hubContext.Clients.Client(connectionId).SendAsync(eventName, new
-        {
-            notificationId,
-            eventName,
-            payload
-        }, cancellationToken);
-    }
+        => hubContext.Clients.Client(connectionId).SendAsync(eventName, payloadJson ?? "{}", cancellationToken);
 }
