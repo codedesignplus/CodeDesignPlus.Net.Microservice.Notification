@@ -11,7 +11,7 @@ public class BroadcastNotificationCommandHandler(INotifierGateway notifier, INot
 
         try
         {
-            await notifier.BroadcastAsync(request.EventName, request.JsonPayload, cancellationToken);
+            await notifier.BroadcastAsync(request.Tenant, request.EventName, request.JsonPayload, cancellationToken);
 
             aggregate.MarkAsSent(Guid.Empty);
         }
