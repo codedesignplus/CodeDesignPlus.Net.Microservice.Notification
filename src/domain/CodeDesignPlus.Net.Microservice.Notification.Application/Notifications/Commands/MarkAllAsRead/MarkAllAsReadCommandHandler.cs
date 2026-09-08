@@ -26,7 +26,7 @@ public class MarkAllAsReadCommandHandler(
     {
         for (var pagina = 0; pagina < MaximoDePaginas; pagina++)
         {
-            var avisos = await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, pagina, TamanoDePagina, cancellationToken);
+            var avisos = await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, null, pagina, TamanoDePagina, cancellationToken);
 
             if (avisos.Count == 0)
                 return;

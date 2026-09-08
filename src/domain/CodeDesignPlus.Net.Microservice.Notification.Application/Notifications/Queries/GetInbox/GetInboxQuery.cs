@@ -11,7 +11,9 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 /// </remarks>
 /// <param name="Page">Pagina, empezando en cero.</param>
 /// <param name="Size">Cuantos avisos por pagina.</param>
-public record GetInboxQuery(int Page, int Size) : IRequest<List<NotificationDto>>;
+/// <param name="Kind">Solo los de ese tipo, o todos si va vacio.</param>
+/// <param name="UnreadOnly">Solo los que aun no ha acusado.</param>
+public record GetInboxQuery(int Page, int Size, string? Kind = null, bool UnreadOnly = false) : IRequest<List<NotificationDto>>;
 
 /// <summary>Validador de <see cref="GetInboxQuery"/>.</summary>
 public class Validator : AbstractValidator<GetInboxQuery>

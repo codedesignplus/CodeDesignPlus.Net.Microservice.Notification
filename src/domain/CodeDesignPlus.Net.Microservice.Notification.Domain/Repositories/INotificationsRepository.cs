@@ -34,7 +34,7 @@ public interface INotificationsRepository : IRepositoryBase
     /// <param name="size">Tamaño de pagina.</param>
     /// <param name="cancellationToken">Token de cancelacion.</param>
     /// <returns>Los avisos que le alcanzan, del mas reciente al mas antiguo.</returns>
-    Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, int page, int size, CancellationToken cancellationToken);
+    Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, string? kind, int page, int size, CancellationToken cancellationToken);
 
     /// <summary>Cuantos avisos le alcanzan, para el contador de la campana.</summary>
     Task<long> CountInboxAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken);

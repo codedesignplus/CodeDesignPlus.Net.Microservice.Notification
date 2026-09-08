@@ -18,7 +18,7 @@ public class GetInboxQueryHandler(
     /// <summary>Trae una pagina de la bandeja del lector.</summary>
     public async Task<List<NotificationDto>> Handle(GetInboxQuery request, CancellationToken cancellationToken)
     {
-        var avisos = await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, request.Page, request.Size, cancellationToken);
+        var avisos = await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, request.Kind, request.Page, request.Size, cancellationToken);
 
         if (avisos.Count == 0)
             return [];
@@ -27,7 +27,14 @@ public class GetInboxQueryHandler(
         // años no cabe en memoria y no hace falta para pintar veinte filas.
         var leidos = await readRepository.GetReadIdsAsync(user.Tenant, user.IdUser, avisos.Select(x => x.Id), cancellationToken);
 
-        return [.. avisos.Select(x => new NotificationDto(
+        // El filtro de no leidas se aplica aqui y no en Mongo: los acuses viven en otra coleccion, y
+        // cruzarlas en la base obligaria a un $lookup por cada pagina. Con el techo de 100 por pagina el
+        // coste de filtrar en memoria es despreciable.
+        var visibles = request.UnreadOnly
+            ? avisos.Where(x => !leidos.Contains(x.Id))
+            : avisos;
+
+        return [.. visibles.Select(x => new NotificationDto(
             x.Id,
             x.Kind ?? string.Empty,
             x.Title ?? string.Empty,

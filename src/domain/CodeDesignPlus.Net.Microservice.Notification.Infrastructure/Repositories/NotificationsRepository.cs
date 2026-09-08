@@ -69,12 +69,17 @@ public class NotificationsRepository(IServiceProvider serviceProvider, IOptions<
             builder.Or(paraMi, paraMisRoles, paraTodos));
     }
 
-    public async Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, int page, int size, CancellationToken cancellationToken)
+    public async Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, string? kind, int page, int size, CancellationToken cancellationToken)
     {
         var collection = base.GetCollection<NotificationsAggregate>();
 
+        var filtro = BuildAudienceFilter(tenant, userId, roles);
+
+        if (!string.IsNullOrWhiteSpace(kind))
+            filtro = Builders<NotificationsAggregate>.Filter.And(filtro, Builders<NotificationsAggregate>.Filter.Eq(x => x.Kind, kind));
+
         var cursor = await collection.FindAsync(
-            BuildAudienceFilter(tenant, userId, roles),
+            filtro,
             new FindOptions<NotificationsAggregate>
             {
                 // Por cuando ocurrio el hecho, no por cuando se guardo: un emisor que reintenta minutos
