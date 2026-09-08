@@ -44,7 +44,7 @@ jobs:
     with:
       project-name: CodeDesignPlus.Net.Microservice.Notification
       microservice-name: ms-notification
-      enable-rest: false
+      enable-rest: true
       enable-grpc: true
       enable-worker: false
       environment: ${{ github.event.inputs.environment }}
