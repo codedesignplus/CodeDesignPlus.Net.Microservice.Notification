@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Repositories;
+﻿namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Repositories;
 
 /// <summary>
 /// Los acuses de lectura, en su propia coleccion.
@@ -35,6 +35,23 @@ public class NotificationReadRepository(IServiceProvider serviceProvider, IOptio
         var acuses = await cursor.ToListAsync(cancellationToken);
 
         return [.. acuses.Select(x => x.NotificationId)];
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Guid>> GetAllReadIdsAsync(Guid tenant, Guid userId, CancellationToken cancellationToken)
+    {
+        var filter = Builders<NotificationReadAggregate>.Filter.And(
+            Builders<NotificationReadAggregate>.Filter.Eq(x => x.Tenant, tenant),
+            Builders<NotificationReadAggregate>.Filter.Eq(x => x.UserId, userId));
+
+        // Se proyecta solo el identificador: de un acuse no hace falta nada mas para descartarlo.
+        var cursor = await base.GetCollection<NotificationReadAggregate>()
+            .FindAsync(filter, new FindOptions<NotificationReadAggregate, Guid>
+            {
+                Projection = Builders<NotificationReadAggregate>.Projection.Expression(x => x.NotificationId)
+            }, cancellationToken);
+
+        return await cursor.ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc/>

@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Repositories;
+﻿namespace CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Repositories;
 
 public class NotificationsRepository(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<NotificationsRepository> logger)
     : RepositoryBase(serviceProvider, mongoOptions, logger), INotificationsRepository
@@ -69,28 +69,72 @@ public class NotificationsRepository(IServiceProvider serviceProvider, IOptions<
             builder.Or(paraMi, paraMisRoles, paraTodos));
     }
 
-    public async Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, string? kind, int page, int size, CancellationToken cancellationToken)
+    /// <summary>
+    /// El filtro completo de la bandeja: la audiencia, mas lo que pida quien consulta.
+    /// </summary>
+    /// <remarks>
+    /// <b>La audiencia va primero y siempre.</b> Lo que llegue en <paramref name="criteria"/> se le suma
+    /// con <c>AND</c>, asi que solo puede estrechar la bandeja: ningun <c>filters</c> de la URL puede
+    /// sacar un aviso dirigido a otro. Sustituir uno por otro, o combinarlos con <c>OR</c>, seria la
+    /// misma fuga que la fase 2 cerro en el hub, reabierta por la puerta de la lectura.
+    /// <para>
+    /// Es <c>static</c> y publico para poder comprobar el filtro real renderizado a BSON, y no una copia
+    /// escrita a mano que envejeceria por su cuenta.
+    /// </para>
+    /// </remarks>
+    /// <param name="tenant">La copropiedad del lector.</param>
+    /// <param name="userId">El lector.</param>
+    /// <param name="roles">Los roles que el lector trae en su token.</param>
+    /// <param name="criteria">Lo que pide quien consulta.</param>
+    /// <param name="excluir">Avisos a descartar, para el filtro de "solo sin leer".</param>
+    public static FilterDefinition<NotificationsAggregate> BuildInboxFilter(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir)
     {
-        var collection = base.GetCollection<NotificationsAggregate>();
+        var builder = Builders<NotificationsAggregate>.Filter;
 
         var filtro = BuildAudienceFilter(tenant, userId, roles);
 
-        if (!string.IsNullOrWhiteSpace(kind))
-            filtro = Builders<NotificationsAggregate>.Filter.And(filtro, Builders<NotificationsAggregate>.Filter.Eq(x => x.Kind, kind));
+        if (!string.IsNullOrWhiteSpace(criteria.Filters))
+            filtro = builder.And(filtro, builder.Where(criteria.GetFilterExpression<NotificationsAggregate>()));
 
-        var cursor = await collection.FindAsync(
-            filtro,
-            new FindOptions<NotificationsAggregate>
-            {
-                // Por cuando ocurrio el hecho, no por cuando se guardo: un emisor que reintenta minutos
-                // despues no debe colarse por delante en la bandeja.
-                Sort = Builders<NotificationsAggregate>.Sort.Descending(x => x.OccurredAt),
-                Skip = page * size,
-                Limit = size
-            },
-            cancellationToken);
+        // El descarte de lo ya leido se hace en la consulta, no despues de paginar: filtrarlo en memoria
+        // dejaria el total contando filas que el usuario no va a ver y la ultima pagina corta.
+        if (excluir is { Count: > 0 })
+            filtro = builder.And(filtro, builder.Nin(x => x.Id, excluir));
 
-        return await cursor.ToListAsync(cancellationToken);
+        return filtro;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Pagination<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir, CancellationToken cancellationToken)
+    {
+        var collection = base.GetCollection<NotificationsAggregate>();
+
+        var filtro = BuildInboxFilter(tenant, userId, roles, criteria, excluir);
+
+        var totalCount = await collection.CountDocumentsAsync(filtro, cancellationToken: cancellationToken);
+
+        var query = collection.Find(filtro);
+
+        var ordenar = criteria.GetSortByExpression<NotificationsAggregate>();
+
+        if (ordenar is not null)
+            query = criteria.OrderType == C.OrderTypes.Ascending
+                ? query.SortBy(ordenar)
+                : query.SortByDescending(ordenar);
+        else
+            // Por cuando ocurrio el hecho, no por cuando se guardo: un emisor que reintenta minutos
+            // despues no debe colarse por delante en la bandeja.
+            query = query.SortByDescending(x => x.OccurredAt);
+
+        if (criteria.Skip.HasValue)
+            query = query.Skip(criteria.Skip.Value);
+
+        if (criteria.Limit.HasValue)
+            query = query.Limit(criteria.Limit.Value);
+
+        var data = await query.ToListAsync(cancellationToken);
+
+        return Pagination<NotificationsAggregate>.Create(data, totalCount, criteria.Limit, criteria.Skip);
     }
 
     public Task<long> CountInboxAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken)

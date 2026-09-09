@@ -8,6 +8,9 @@ global using Microsoft.Extensions.Options;
 global using MongoDB.Driver;
 global using CodeDesignPlus.Net.Serializers;
 global using NodaTime;
+global using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+global using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
+global using CodeDesignPlus.Net.Criteria.Extensions;
 
 global using CodeDesignPlus.Net.Microservice.Notification.Domain;
 global using CodeDesignPlus.Net.Microservice.Notification.Domain.Enums;

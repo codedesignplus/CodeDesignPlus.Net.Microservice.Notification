@@ -127,4 +127,69 @@ public class InboxFilterTest
         Assert.True(rendered.Contains("Audience"), $"No se excluyen los avisos sin audiencia: {rendered}");
         Assert.Equal(BsonNull.Value, rendered["Audience"]["$ne"]);
     }
+
+    /// <summary>El filtro completo, con lo que pida quien consulta encima de la audiencia.</summary>
+    private static BsonDocument RenderConCriteria(C.Criteria criteria, IReadOnlyCollection<Guid>? excluir = null)
+    {
+        var filtro = NotificationsRepository.BuildInboxFilter(Tenant, Yo, MisRoles, criteria, excluir);
+
+        return filtro.Render(new RenderArgs<NotificationsAggregate>(
+            BsonSerializer.SerializerRegistry.GetSerializer<NotificationsAggregate>(),
+            BsonSerializer.SerializerRegistry));
+    }
+
+    [Fact]
+    public void CriteriaCanNarrowTheInbox()
+    {
+        // El caso legitimo: filtrar por tipo desde la tabla. El driver aplana el And de campos distintos,
+        // asi que `Kind` queda al lado de la audiencia, no en lugar de ella.
+        var rendered = RenderConCriteria(new C.Criteria { Filters = "kind=invoice.issued" });
+
+        Assert.Equal("invoice.issued", rendered["Kind"].AsString);
+        Assert.Equal(new BsonBinaryData(Tenant, GuidRepresentation.Standard), rendered["Tenant"]);
+        Assert.Equal(3, RamasDelOr(rendered).Count);
+    }
+
+    [Fact]
+    public void CriteriaCannotReplaceTheTenant()
+    {
+        // La violacion deliberada: quien consulta pide la bandeja de otra copropiedad por la URL.
+        //
+        // No hay forma de que gane. Como el nuestro ya ocupa `Tenant`, el driver no puede aplanar los dos
+        // y los deja en un $and: el filtro pide las dos copropiedades a la vez y no devuelve nada. Lo que
+        // no ocurre —y es el punto de la prueba— es que el suyo sustituya al nuestro.
+        //
+        // Si algun dia alguien cambia el AND por un OR, o sustituye el filtro en vez de sumarlo, esta
+        // prueba es la que se cae.
+        var otra = Guid.Parse("dd000000-0000-4000-8000-000000000004");
+
+        var rendered = RenderConCriteria(new C.Criteria { Filters = $"tenant={otra}" });
+
+        var ramas = rendered["$and"].AsBsonArray.Select(x => x.AsBsonDocument).ToList();
+
+        // El nuestro sigue ahi, y la audiencia entera con el. El suyo se suma como una condicion mas.
+        Assert.Contains(ramas, x => x.GetValue("Tenant", null) == new BsonBinaryData(Tenant, GuidRepresentation.Standard));
+        Assert.Contains(ramas, x => x.Contains("$or") && x["$or"].AsBsonArray.Count == 3);
+    }
+
+    [Fact]
+    public void ReadNoticesAreDiscardedInTheQuery()
+    {
+        // "Solo sin leer" descarta antes de paginar. Si se filtrara en memoria despues de traer la pagina,
+        // el total contaria filas que el usuario no va a ver y la ultima pagina saldria corta.
+        var leido = Guid.Parse("cc000000-0000-4000-8000-000000000003");
+
+        var rendered = RenderConCriteria(new C.Criteria(), [leido]);
+
+        Assert.Equal(new BsonBinaryData(leido, GuidRepresentation.Standard), rendered["_id"]["$nin"].AsBsonArray[0]);
+        Assert.Equal(new BsonBinaryData(Tenant, GuidRepresentation.Standard), rendered["Tenant"]);
+    }
+
+    [Fact]
+    public void AnEmptyCriteriaLeavesTheAudienceFilterAlone()
+    {
+        // Sin filtros no se envuelve nada: la bandeja sin filtrar tiene que rendir exactamente el mismo
+        // documento que la audiencia sola.
+        Assert.Equal(Render(Tenant, Yo, MisRoles), RenderConCriteria(new C.Criteria()));
+    }
 }

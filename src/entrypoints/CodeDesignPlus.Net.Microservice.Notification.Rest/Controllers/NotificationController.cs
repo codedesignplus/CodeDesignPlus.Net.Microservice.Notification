@@ -5,6 +5,7 @@ using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Que
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetUnreadCount;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
 using System.ComponentModel;
 
 namespace CodeDesignPlus.Net.Microservice.Notification.Rest.Controllers;
@@ -23,22 +24,29 @@ public class NotificationController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Los avisos que le alcanzan al usuario, del mas reciente al mas antiguo.
     /// </summary>
-    /// <param name="page">Pagina, empezando en cero.</param>
-    /// <param name="size">Cuantos avisos por pagina, hasta 100.</param>
-    /// <param name="kind">Solo los de ese tipo, o todos si va vacio.</param>
+    /// <remarks>
+    /// Es un listado de criteria como cualquier otro de la plataforma, asi que la tabla del frontend se
+    /// escribe igual que las demas. Lo que llegue en <paramref name="criteria"/> solo puede estrechar la
+    /// bandeja: la audiencia se aplica antes y por dentro, no se puede ensanchar desde la URL.
+    /// <para>
+    /// <paramref name="unreadOnly"/> va aparte porque los acuses de lectura viven en otra coleccion: no
+    /// es un campo del aviso y el parser de criteria no puede resolverlo.
+    /// </para>
+    /// </remarks>
+    /// <param name="criteria">Filtros, orden y pagina.</param>
     /// <param name="unreadOnly">Solo los que aun no ha acusado.</param>
     /// <param name="cancellationToken">Token de cancelacion.</param>
     /// <returns>Una pagina de la bandeja.</returns>
     [HttpGet]
     [Description("Get the caller's notification inbox")]
-    [ProducesResponseType(typeof(List<NotificationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Pagination<NotificationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetInbox(
-        [FromQuery] int page = 0,
-        [FromQuery] int size = 20,
-        [FromQuery] string? kind = null,
+        [FromQuery] C.Criteria criteria,
         [FromQuery] bool unreadOnly = false,
         CancellationToken cancellationToken = default)
-        => Ok(await mediator.Send(new GetInboxQuery(page, size, kind, unreadOnly), cancellationToken));
+        => Ok(await mediator.Send(new GetInboxQuery(criteria, unreadOnly), cancellationToken));
 
     /// <summary>
     /// Cuantos avisos sin leer tiene, para el numerito de la campana.

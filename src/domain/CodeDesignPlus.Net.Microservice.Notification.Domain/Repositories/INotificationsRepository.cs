@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.Microservice.Notification.Domain.Repositories;
+﻿namespace CodeDesignPlus.Net.Microservice.Notification.Domain.Repositories;
 
 public interface INotificationsRepository : IRepositoryBase
 {
@@ -26,15 +26,20 @@ public interface INotificationsRepository : IRepositoryBase
     /// <remarks>
     /// La audiencia se guardo como descriptor al escribir y se resuelve aqui, al leer. Al leer sale
     /// gratis: los roles los trae el propio lector en su JWT.
+    /// <para>
+    /// El filtro de audiencia y el de <paramref name="criteria"/> se combinan con <c>AND</c>, nunca se
+    /// sustituyen: quien llama puede acotar la bandeja, no ensancharla, asi que ningun <c>filters</c> de
+    /// la URL puede sacar un aviso que no le corresponde.
+    /// </para>
     /// </remarks>
     /// <param name="tenant">La copropiedad del lector.</param>
     /// <param name="userId">El lector.</param>
     /// <param name="roles">Los roles que el lector trae en su token.</param>
-    /// <param name="page">Pagina, empezando en cero.</param>
-    /// <param name="size">Tamaño de pagina.</param>
+    /// <param name="criteria">Filtros, orden y pagina que pide quien consulta.</param>
+    /// <param name="excluir">Avisos que no deben salir, para el filtro de "solo sin leer".</param>
     /// <param name="cancellationToken">Token de cancelacion.</param>
-    /// <returns>Los avisos que le alcanzan, del mas reciente al mas antiguo.</returns>
-    Task<List<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, string? kind, int page, int size, CancellationToken cancellationToken);
+    /// <returns>La pagina pedida y cuantos avisos le alcanzan en total.</returns>
+    Task<Pagination<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir, CancellationToken cancellationToken);
 
     /// <summary>Cuantos avisos le alcanzan, para el contador de la campana.</summary>
     Task<long> CountInboxAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken);
