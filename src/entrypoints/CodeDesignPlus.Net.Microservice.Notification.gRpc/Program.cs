@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.Observability.Interceptors;
+﻿using CodeDesignPlus.Net.Observability.Interceptors;
 using CodeDesignPlus.Net.Logger.Extensions;
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.gRpc.Interceptors;
 using CodeDesignPlus.Net.Microservice.Commons.FluentValidation;
@@ -11,6 +11,7 @@ using CodeDesignPlus.Net.Microservice.Notification.Infrastructure.Services;
 using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.Observability.Extensions;
 using CodeDesignPlus.Net.RabbitMQ.Extensions;
+using CodeDesignPlus.Net.ServiceBus.Extensions;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Cache.Extensions;
 using CodeDesignPlus.Net.Redis.Extensions;
@@ -45,6 +46,7 @@ builder.Services.AddMongo<CodeDesignPlus.Net.Microservice.Notification.Infrastru
 builder.Services.AddRedis(builder.Configuration);
 builder.Services.AddHangfire<Program>(builder.Configuration);
 builder.Services.AddRabbitMQ<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
+builder.Services.AddServiceBus<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
 builder.Services.AddSecurity(builder.Configuration);
 builder.Services.AddObservability(builder.Configuration, builder.Environment);
 builder.Services.AddGrpcClients(builder.Configuration);
