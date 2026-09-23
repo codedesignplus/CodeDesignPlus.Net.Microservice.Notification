@@ -39,6 +39,12 @@ builder.Services.AddMapster();
 builder.Services.AddFluentValidation();
 builder.Services.AddMediatR<CodeDesignPlus.Net.Microservice.Notification.Application.Startup>();
 builder.Services.AddSecurity(builder.Configuration);
+
+// La bandeja resuelve los roles del lector contra su copropiedad con IRoleDirectory, y el ultimo recurso
+// de ese directorio -preguntarle a ms-users- vive en los clientes gRPC. Sin esta linea el directorio se
+// queda sin ninguna fuente y devuelve vacio, que deniega: la bandeja sale en blanco para todo el mundo y
+// no falla nada. Estaba solo en el entrypoint gRPC, y quien lee la bandeja es este.
+builder.Services.AddGrpcClients(builder.Configuration);
 builder.Services.AddCoreSwagger<Program>(builder.Configuration);
 builder.Services.AddCache(builder.Configuration);
 builder.Services.AddResources<Program>(builder.Configuration);

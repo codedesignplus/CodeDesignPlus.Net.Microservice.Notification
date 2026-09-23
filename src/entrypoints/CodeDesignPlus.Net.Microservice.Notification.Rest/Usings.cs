@@ -6,6 +6,7 @@ global using CodeDesignPlus.Net.RabbitMQ.Extensions;
 global using CodeDesignPlus.Net.ServiceBus.Extensions;
 global using CodeDesignPlus.Net.Redis.Extensions;
 global using CodeDesignPlus.Net.Security.Extensions;
+global using CodeDesignPlus.Net.gRpc.Clients.Extensions;
 global using Mapster;
 global using MapsterMapper;
 global using MediatR;
