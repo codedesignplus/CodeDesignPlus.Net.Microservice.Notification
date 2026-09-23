@@ -16,7 +16,8 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 public class MarkAllAsReadCommandHandler(
     INotificationsRepository repository,
     INotificationReadRepository readRepository,
-    IUserContext user) : IRequestHandler<MarkAllAsReadCommand>
+    IUserContext user,
+    IRoleDirectory roleDirectory) : IRequestHandler<MarkAllAsReadCommand>
 {
     private const int TamanoDePagina = 100;
     private const int MaximoDePaginas = 20;
@@ -24,13 +25,17 @@ public class MarkAllAsReadCommandHandler(
     /// <summary>Acusa todo lo que le alcanza al lector.</summary>
     public async Task Handle(MarkAllAsReadCommand request, CancellationToken cancellationToken)
     {
+        // Se resuelven una vez y no por pagina: son los mismos durante todo el recorrido, y pedirlos en
+        // cada vuelta convertiria un acuse masivo en veinte consultas al directorio.
+        var roles = await roleDirectory.GetRolesAsync(user.IdUser, user.Tenant, cancellationToken);
+
         for (var pagina = 0; pagina < MaximoDePaginas; pagina++)
         {
             var criteria = new C.Criteria { Skip = pagina * TamanoDePagina, Limit = TamanoDePagina };
 
             // Sin `excluir`: la bandeja no encoge al acusar, asi que el salto por paginas es estable.
             // Pasar los ya leidos moveria las filas bajo los pies del recorrido.
-            var avisos = (await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, criteria, null, cancellationToken)).Data.ToList();
+            var avisos = (await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, criteria, null, cancellationToken)).Data.ToList();
 
             if (avisos.Count == 0)
                 return;

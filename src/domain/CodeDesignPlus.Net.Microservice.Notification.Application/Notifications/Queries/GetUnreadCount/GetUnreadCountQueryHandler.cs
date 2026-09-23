@@ -15,12 +15,17 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 public class GetUnreadCountQueryHandler(
     INotificationsRepository repository,
     INotificationReadRepository readRepository,
-    IUserContext user) : IRequestHandler<GetUnreadCountQuery, long>
+    IUserContext user,
+    IRoleDirectory roleDirectory) : IRequestHandler<GetUnreadCountQuery, long>
 {
     /// <summary>Cuenta lo que le alcanza al lector y aun no ha acusado.</summary>
     public async Task<long> Handle(GetUnreadCountQuery request, CancellationToken cancellationToken)
     {
-        var alcanzan = await repository.CountInboxAsync(user.Tenant, user.IdUser, user.Roles, cancellationToken);
+        // Los roles de esta copropiedad, no los del claim: el contador tiene que contar exactamente lo
+        // mismo que la bandeja, o la campana anuncia avisos que no aparecen al abrirla.
+        var roles = await roleDirectory.GetRolesAsync(user.IdUser, user.Tenant, cancellationToken);
+
+        var alcanzan = await repository.CountInboxAsync(user.Tenant, user.IdUser, roles, cancellationToken);
         var leidos = await readRepository.CountReadAsync(user.Tenant, user.IdUser, cancellationToken);
 
         // Nunca negativo: un acuse puede sobrevivir al aviso que lo origino si este se purga.

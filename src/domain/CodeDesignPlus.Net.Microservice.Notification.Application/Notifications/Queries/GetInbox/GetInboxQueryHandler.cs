@@ -7,14 +7,20 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 /// Manejador de <see cref="GetInboxQuery"/>.
 /// </summary>
 /// <remarks>
-/// La audiencia se resuelve aqui, al leer, contra el <c>IUserContext</c>: el lector trae sus roles en su
-/// propio JWT, asi que sale gratis. Resolverla al escribir habria obligado a que cada micro supiera los
-/// identificadores de usuario detras de un rol.
+/// La audiencia se resuelve aqui, al leer: resolverla al escribir habria obligado a que cada micro
+/// supiera los identificadores de usuario detras de un rol.
+/// <para>
+/// Los roles salen del <c>IRoleDirectory</c> y no de <c>IUserContext.Roles</c>. Ese claim lo llena el
+/// proveedor de identidad con todos los grupos del usuario en todo el directorio, porque no sabe que es
+/// una copropiedad: quien administra una y en otra solo reside veria en la segunda los avisos de la
+/// primera.
+/// </para>
 /// </remarks>
 public class GetInboxQueryHandler(
     INotificationsRepository repository,
     INotificationReadRepository readRepository,
-    IUserContext user) : IRequestHandler<GetInboxQuery, Pagination<NotificationDto>>
+    IUserContext user,
+    IRoleDirectory roleDirectory) : IRequestHandler<GetInboxQuery, Pagination<NotificationDto>>
 {
     /// <summary>Trae una pagina de la bandeja del lector.</summary>
     public async Task<Pagination<NotificationDto>> Handle(GetInboxQuery request, CancellationToken cancellationToken)
@@ -26,7 +32,9 @@ public class GetInboxQueryHandler(
             ? await readRepository.GetAllReadIdsAsync(user.Tenant, user.IdUser, cancellationToken)
             : null;
 
-        var pagina = await repository.GetInboxAsync(user.Tenant, user.IdUser, user.Roles, request.Criteria, yaLeidos, cancellationToken);
+        var roles = await roleDirectory.GetRolesAsync(user.IdUser, user.Tenant, cancellationToken);
+
+        var pagina = await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, request.Criteria, yaLeidos, cancellationToken);
 
         var avisos = pagina.Data.ToList();
 
