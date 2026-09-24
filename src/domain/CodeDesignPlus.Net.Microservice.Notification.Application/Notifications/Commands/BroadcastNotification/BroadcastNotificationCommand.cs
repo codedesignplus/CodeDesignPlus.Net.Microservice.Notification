@@ -21,6 +21,6 @@ public class BroadcastValidator : AbstractValidator<BroadcastNotificationCommand
 
         RuleFor(x => x.JsonPayload)
             .Must(json => json.TrimStart().StartsWith('{') || json.TrimStart().StartsWith('['))
-            .WithMessage("The payload must be a valid JSON.");
+            .WithErrorCode(Errors.PayloadIsNotValidJson.Code);
     }
 }

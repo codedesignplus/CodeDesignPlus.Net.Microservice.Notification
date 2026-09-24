@@ -28,6 +28,6 @@ public class Validator : AbstractValidator<PushLiveCommand>
         RuleFor(x => x.JsonPayload).NotEmpty();
         // Uno de los dos, nunca ninguno y nunca los dos: el destino tiene que quedar sin ambiguedad.
         RuleFor(x => x).Must(x => x.UserId.HasValue ^ !string.IsNullOrWhiteSpace(x.GroupName))
-            .WithMessage("A live push targets either a user or a group, never both and never neither.");
+            .WithErrorCode(Errors.PushTargetIsAmbiguous.Code);
     }
 }

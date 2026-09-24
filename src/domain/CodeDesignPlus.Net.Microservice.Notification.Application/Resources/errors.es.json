@@ -2,6 +2,8 @@
   "language": "es",
   "errors": {
     "200": "Error desconocido.",
+    "201": "El contenido debe ser un JSON válido.",
+    "202": "Un aviso en vivo se dirige a un usuario o a un grupo: no a los dos, ni a ninguno.",
     "402": "No encontramos esa notificación."
   }
 }

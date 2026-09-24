@@ -2,6 +2,8 @@
   "language": "en",
   "errors": {
     "200": "UnknownError",
+    "201": "The payload must be valid JSON.",
+    "202": "A live push must target either a user or a group: not both, and not neither.",
     "402": "The notification was not found."
   }
 }

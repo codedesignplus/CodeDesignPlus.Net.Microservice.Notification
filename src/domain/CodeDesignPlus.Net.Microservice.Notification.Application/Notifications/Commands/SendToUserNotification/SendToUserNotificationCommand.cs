@@ -9,17 +9,17 @@ public class Validator : AbstractValidator<SendToUserNotificationCommand>
     {
         RuleFor(x => x.Id).NotEmpty().NotNull();
         RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("The UserId is required for sending direct notifications.");
+            .NotEmpty();
 
         RuleFor(x => x.EventName)
-            .NotEmpty().WithMessage("The EventName is required so the client knows which event to listen to.");
+            .NotEmpty();
 
         RuleFor(x => x.JsonPayload)
-            .NotEmpty().WithMessage("The payload cannot be empty.");
+            .NotEmpty();
 
         RuleFor(x => x.JsonPayload)
             .Must(json => json.TrimStart().StartsWith('{') || json.TrimStart().StartsWith('['))
-            .WithMessage("The payload must be a valid JSON.");
+            .WithErrorCode(Errors.PayloadIsNotValidJson.Code);
 
         RuleFor(x => x.Tenant).NotEmpty();
     }

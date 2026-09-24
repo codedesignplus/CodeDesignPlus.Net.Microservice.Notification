@@ -18,13 +18,13 @@ public class SendToGroupValidator : AbstractValidator<SendToGroupNotificationCom
 
         RuleFor(x => x.Tenant).NotEmpty();
         RuleFor(x => x.GroupName)
-            .NotEmpty().WithMessage("You must specify a GroupName.");
+            .NotEmpty();
 
         RuleFor(x => x.EventName).NotEmpty();
         RuleFor(x => x.JsonPayload).NotEmpty();
         
         RuleFor(x => x.JsonPayload)
             .Must(json => json.TrimStart().StartsWith('{') || json.TrimStart().StartsWith('['))
-            .WithMessage("The payload must be a valid JSON.");
+            .WithErrorCode(Errors.PayloadIsNotValidJson.Code);
     }
 }
