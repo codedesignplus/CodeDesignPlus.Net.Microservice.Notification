@@ -4,6 +4,6 @@
     "200": "Erreur inconnue.",
     "201": "Le contenu doit être un JSON valide.",
     "202": "Une notification en direct vise un utilisateur ou un groupe : pas les deux, et pas aucun.",
-    "402": "Notification introuvable."
+    "203": "Notification introuvable."
   }
 }

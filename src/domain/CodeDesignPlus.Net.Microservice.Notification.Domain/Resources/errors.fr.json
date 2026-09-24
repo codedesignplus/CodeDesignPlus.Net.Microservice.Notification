@@ -2,11 +2,11 @@
   "language": "fr",
   "errors": {
     "100": "Erreur inconnue.",
-    "401": "Cette notification a déjà été remise.",
-    "400": "Notification introuvable.",
-    "403": "Le type de notification est obligatoire.",
-    "404": "Le titre de la notification est obligatoire.",
-    "405": "L'identifiant de la notification est obligatoire.",
-    "406": "Le lecteur de la notification est obligatoire."
+    "101": "Notification introuvable.",
+    "102": "Cette notification a déjà été remise.",
+    "103": "Le type de notification est obligatoire.",
+    "104": "Le titre de la notification est obligatoire.",
+    "105": "L'identifiant de la notification est obligatoire.",
+    "106": "Le lecteur de la notification est obligatoire."
   }
 }

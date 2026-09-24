@@ -5,7 +5,7 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application;
 public class Errors: IErrorCodes
 {
     public static readonly Error UnknownError = new("200");
-    public static readonly Error NotificationNotFound = new("402");
+    public static readonly Error NotificationNotFound = new("203");
 
     /// <summary>El contenido debe ser un JSON válido.</summary>
     public static readonly Error PayloadIsNotValidJson = new("201");

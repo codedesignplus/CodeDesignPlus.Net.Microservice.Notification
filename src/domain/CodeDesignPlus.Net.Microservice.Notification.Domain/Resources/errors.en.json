@@ -2,11 +2,11 @@
   "language": "en",
   "errors": {
     "100": "UnknownError",
-    "401": "The notification was already delivered.",
-    "400": "The notification was not found.",
-    "403": "The notification kind is required.",
-    "404": "The notification title is required.",
-    "405": "The notification id is required.",
-    "406": "The reader is required."
+    "101": "The notification was not found.",
+    "102": "The notification was already delivered.",
+    "103": "The notification kind is required.",
+    "104": "The notification title is required.",
+    "105": "The notification id is required.",
+    "106": "The reader is required."
   }
 }
