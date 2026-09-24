@@ -1,0 +1,7 @@
+{
+  "language": "en",
+  "errors": {
+    "200": "UnknownError",
+    "402": "The notification was not found."
+  }
+}
