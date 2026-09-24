@@ -1,12 +1,12 @@
 {
   "language": "es",
   "errors": {
-    "100": "",
-    "401": "",
-    "400": "",
-    "403": "",
-    "404": "",
-    "405": "",
-    "406": ""
+    "100": "Error desconocido.",
+    "401": "Esa notificación ya se entregó.",
+    "400": "No encontramos esa notificación.",
+    "403": "El tipo de notificación es obligatorio.",
+    "404": "El título de la notificación es obligatorio.",
+    "405": "El identificador de la notificación es obligatorio.",
+    "406": "Falta indicar quien lee la notificación."
   }
 }

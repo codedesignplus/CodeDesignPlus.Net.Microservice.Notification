@@ -1,0 +1,7 @@
+{
+  "language": "fr",
+  "errors": {
+    "200": "Erreur inconnue.",
+    "402": "Notification introuvable."
+  }
+}

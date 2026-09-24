@@ -1,7 +1,7 @@
 {
   "language": "es",
   "errors": {
-    "200": "",
-    "402": ""
+    "200": "Error desconocido.",
+    "402": "No encontramos esa notificación."
   }
 }

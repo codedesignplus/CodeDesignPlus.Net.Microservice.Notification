@@ -1,0 +1,12 @@
+{
+  "language": "pt",
+  "errors": {
+    "100": "Erro desconhecido.",
+    "401": "Essa notificação já foi entregue.",
+    "400": "Não encontramos essa notificação.",
+    "403": "O tipo de notificação é obrigatório.",
+    "404": "O título da notificação é obrigatório.",
+    "405": "O identificador da notificação é obrigatório.",
+    "406": "Falta indicar quem lê a notificação."
+  }
+}
