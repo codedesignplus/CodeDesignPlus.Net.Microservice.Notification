@@ -1,10 +1,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["nuget.config", "nuget.config"]
+COPY ["src/domain/CodeDesignPlus.Net.Microservice.Notification.Application/CodeDesignPlus.Net.Microservice.Notification.Application.csproj", "domain/CodeDesignPlus.Net.Microservice.Notification.Application/"]
+COPY ["src/domain/CodeDesignPlus.Net.Microservice.Notification.Domain/CodeDesignPlus.Net.Microservice.Notification.Domain.csproj", "domain/CodeDesignPlus.Net.Microservice.Notification.Domain/"]
+COPY ["src/domain/CodeDesignPlus.Net.Microservice.Notification.Infrastructure/CodeDesignPlus.Net.Microservice.Notification.Infrastructure.csproj", "domain/CodeDesignPlus.Net.Microservice.Notification.Infrastructure/"]
+COPY ["src/entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/CodeDesignPlus.Net.Microservice.Notification.gRpc.csproj", "entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/"]
+RUN dotnet restore "./entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/CodeDesignPlus.Net.Microservice.Notification.gRpc.csproj" /p:PublishReadyToRun=true
 COPY ["src/domain/", "domain/"]
 COPY ["src/entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/", "entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/"]
-COPY ["nuget.config", "nuget.config"]
-RUN dotnet restore "./entrypoints/CodeDesignPlus.Net.Microservice.Notification.gRpc/CodeDesignPlus.Net.Microservice.Notification.gRpc.csproj"
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
