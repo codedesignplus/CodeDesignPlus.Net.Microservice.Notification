@@ -36,7 +36,7 @@ builder.Services.AddLogger(builder.Configuration);
 builder.Services.AddRabbitMQ<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
 builder.Services.AddServiceBus<CodeDesignPlus.Net.Microservice.Notification.Domain.Startup>(builder.Configuration);
 builder.Services.AddMapster();
-builder.Services.AddFluentValidation();
+builder.Services.AddFluentValidation<CodeDesignPlus.Net.Microservice.Notification.Application.Startup>();
 builder.Services.AddMediatR<CodeDesignPlus.Net.Microservice.Notification.Application.Startup>();
 builder.Services.AddSecurity(builder.Configuration);
 
