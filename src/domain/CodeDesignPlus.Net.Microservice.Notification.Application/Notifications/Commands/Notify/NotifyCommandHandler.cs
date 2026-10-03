@@ -22,6 +22,12 @@ public class NotifyCommandHandler(INotifierGateway notifier, INotificationsRepos
     /// <summary>Persiste el aviso y lo empuja segun su audiencia.</summary>
     public async Task<bool> Handle(NotifyCommand request, CancellationToken cancellationToken)
     {
+        // Una reentrega del bus llega con el mismo id, porque el emisor lo deriva del evento (pendings/250). Ese aviso
+        // ya se guardo y se empujo: repetir el push mostraria el hecho dos veces, y guardarlo de nuevo chocaria con el
+        // _id ya guardado.
+        if (await repository.ExistsAsync<NotificationsAggregate>(request.Id, request.Tenant, cancellationToken))
+            return true;
+
         var aggregate = NotificationsAggregate.CreateNotice(
             request.Id, request.Audience, request.Kind, request.Title, request.Body,
             request.Resource, request.JsonPayload, request.Tenant, request.SentBy, request.OccurredAt);

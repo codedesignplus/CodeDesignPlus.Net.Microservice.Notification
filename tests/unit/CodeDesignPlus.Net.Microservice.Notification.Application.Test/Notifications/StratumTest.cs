@@ -104,6 +104,19 @@ public class StratumTest
         notifier.Verify(x => x.SendToGroupAsync($"Tenant:{Tenant}:Role:Contador", "invoice.issued", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task ARedeliveredNoticeIsNeitherPushedNorStoredAgain()
+    {
+        // El emisor deriva el id del evento, asi que una reentrega del bus llega con el mismo (pendings/250).
+        repository.Setup(x => x.ExistsAsync<NotificationsAggregate>(Id, Tenant, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await BuildNotifyHandler().Handle(NoticeFor(Audience.ForUsers([Propietario])), default);
+
+        Assert.True(result);
+        notifier.VerifyNoOtherCalls();
+        repository.Verify(x => x.CreateAsync(It.IsAny<NotificationsAggregate>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private NotifyCommandHandler BuildNotifyHandler() => new(notifier.Object, repository.Object);
 
     private static NotifyCommand NoticeFor(Audience audience) => new(
