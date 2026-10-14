@@ -7,6 +7,9 @@
     "103": "Le type de notification est obligatoire.",
     "104": "Le titre de la notification est obligatoire.",
     "105": "L'identifiant de la notification est obligatoire.",
-    "106": "Le lecteur de la notification est obligatoire."
+    "106": "Le lecteur de la notification est obligatoire.",
+    "107": "Pour clore des avis, il faut la copropriété à laquelle ils appartiennent.",
+    "108": "Pour clore des avis, il faut le module de la ressource vers laquelle ils mènent.",
+    "109": "Pour clore des avis, il faut l'identifiant de la ressource vers laquelle ils mènent."
   }
 }

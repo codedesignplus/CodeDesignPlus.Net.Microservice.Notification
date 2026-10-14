@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.Notify;
+using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.ResolveNotifications;
 using Google.Protobuf.WellKnownTypes;
 using NodaTime.Extensions;
 
@@ -55,6 +56,34 @@ public class InboxService(IMediator mediator) : Inbox.InboxBase
             {
                 await responseStream.WriteAsync(new NotifyAck { Success = false, Message = ex.Message, NotificationId = notificationId });
             }
+        }
+    }
+
+    /// <summary>
+    /// Cierra los avisos de una tarea que ya se hizo, por su tipo y el recurso al que llevan (pendings/325).
+    /// </summary>
+    /// <remarks>
+    /// Un error se devuelve en el acuse y no como excepcion: el emisor no debe caerse porque un aviso no se cerro.
+    /// </remarks>
+    public override async Task<ResolveAck> Resolve(ResolveRequest request, ServerCallContext context)
+    {
+        try
+        {
+            var command = new ResolveNotificationsCommand(
+                ParseGuid(request.Tenant, nameof(request.Tenant)),
+                [.. request.Kinds],
+                request.Resource?.Module ?? string.Empty,
+                request.Resource?.AggregateId ?? string.Empty,
+                Guid.TryParse(request.ResolvedBy, out var by) ? by : Guid.Empty,
+                ToInstant(request.ResolvedAt));
+
+            var resolved = await mediator.Send(command, context.CancellationToken);
+
+            return new ResolveAck { Success = true, Message = "Resolved", Resolved = resolved };
+        }
+        catch (Exception ex)
+        {
+            return new ResolveAck { Success = false, Message = ex.Message };
         }
     }
 

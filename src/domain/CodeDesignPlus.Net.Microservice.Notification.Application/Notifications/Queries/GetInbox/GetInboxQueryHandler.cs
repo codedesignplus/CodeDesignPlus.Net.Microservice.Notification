@@ -34,7 +34,8 @@ public class GetInboxQueryHandler(
 
         var roles = await roleDirectory.GetRolesAsync(user.IdUser, user.Tenant, cancellationToken);
 
-        var pagina = await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, request.Criteria, yaLeidos, cancellationToken);
+        // Con "solo sin leer", uno cerrado tampoco sale: la tarea que pedia ya se hizo (pendings/325).
+        var pagina = await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, request.Criteria, yaLeidos, request.UnreadOnly, cancellationToken);
 
         var avisos = pagina.Data.ToList();
 
@@ -56,7 +57,9 @@ public class GetInboxQueryHandler(
             x.Resource is null ? null : new ResourceDto(x.Resource.Module, x.Resource.AggregateId),
             x.PayloadPreview,
             x.OccurredAt,
-            leidos.Contains(x.Id)));
+            // Un aviso cerrado no espera nada del lector: se pinta como leido aunque no lo haya abierto.
+            leidos.Contains(x.Id) || x.ResolvedAt.HasValue,
+            x.ResolvedAt));
 
         return Pagination<NotificationDto>.Create(data, pagina.TotalCount, pagina.Limit, pagina.Skip);
     }

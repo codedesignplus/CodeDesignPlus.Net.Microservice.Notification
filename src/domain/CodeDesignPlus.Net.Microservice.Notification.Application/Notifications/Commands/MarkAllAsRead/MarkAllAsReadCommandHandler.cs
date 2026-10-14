@@ -35,7 +35,7 @@ public class MarkAllAsReadCommandHandler(
 
             // Sin `excluir`: la bandeja no encoge al acusar, asi que el salto por paginas es estable.
             // Pasar los ya leidos moveria las filas bajo los pies del recorrido.
-            var avisos = (await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, criteria, null, cancellationToken)).Data.ToList();
+            var avisos = (await repository.GetInboxAsync(user.Tenant, user.IdUser, roles, criteria, null, false, cancellationToken)).Data.ToList();
 
             if (avisos.Count == 0)
                 return;

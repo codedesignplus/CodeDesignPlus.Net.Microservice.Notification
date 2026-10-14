@@ -53,15 +53,4 @@ public class NotificationReadRepository(IServiceProvider serviceProvider, IOptio
 
         return await cursor.ToListAsync(cancellationToken);
     }
-
-    /// <inheritdoc/>
-    public Task<long> CountReadAsync(Guid tenant, Guid userId, CancellationToken cancellationToken)
-    {
-        var filter = Builders<NotificationReadAggregate>.Filter.And(
-            Builders<NotificationReadAggregate>.Filter.Eq(x => x.Tenant, tenant),
-            Builders<NotificationReadAggregate>.Filter.Eq(x => x.UserId, userId));
-
-        return base.GetCollection<NotificationReadAggregate>()
-            .CountDocumentsAsync(filter, cancellationToken: cancellationToken);
-    }
 }

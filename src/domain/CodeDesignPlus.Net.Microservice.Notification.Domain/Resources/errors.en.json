@@ -7,6 +7,9 @@
     "103": "The notification kind is required.",
     "104": "The notification title is required.",
     "105": "The notification id is required.",
-    "106": "The reader is required."
+    "106": "The reader is required.",
+    "107": "The notices to close need the tenant they belong to.",
+    "108": "The notices to close need the module of the resource they lead to.",
+    "109": "The notices to close need the identifier of the resource they lead to."
   }
 }

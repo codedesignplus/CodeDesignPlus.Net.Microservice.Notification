@@ -37,7 +37,4 @@ public interface INotificationReadRepository : IRepositoryBase
     /// </para>
     /// </remarks>
     Task<List<Guid>> GetAllReadIdsAsync(Guid tenant, Guid userId, CancellationToken cancellationToken);
-
-    /// <summary>Cuantos de esos avisos <b>no</b> ha leido el usuario.</summary>
-    Task<long> CountReadAsync(Guid tenant, Guid userId, CancellationToken cancellationToken);
 }

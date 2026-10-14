@@ -7,6 +7,9 @@
     "103": "El tipo de notificación es obligatorio.",
     "104": "El título de la notificación es obligatorio.",
     "105": "El identificador de la notificación es obligatorio.",
-    "106": "Falta indicar quien lee la notificación."
+    "106": "Falta indicar quien lee la notificación.",
+    "107": "Para cerrar avisos hace falta la copropiedad a la que pertenecen.",
+    "108": "Para cerrar avisos hace falta el módulo del recurso al que llevan.",
+    "109": "Para cerrar avisos hace falta el identificador del recurso al que llevan."
   }
 }

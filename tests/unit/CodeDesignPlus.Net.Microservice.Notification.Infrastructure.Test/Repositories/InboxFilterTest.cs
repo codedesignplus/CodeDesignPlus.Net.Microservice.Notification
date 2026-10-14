@@ -192,4 +192,61 @@ public class InboxFilterTest
         // documento que la audiencia sola.
         Assert.Equal(Render(Tenant, Yo, MisRoles), RenderConCriteria(new C.Criteria()));
     }
+
+    private static BsonDocument RenderFilter(FilterDefinition<NotificationsAggregate> filtro)
+        => filtro.Render(new RenderArgs<NotificationsAggregate>(
+            BsonSerializer.SerializerRegistry.GetSerializer<NotificationsAggregate>(),
+            BsonSerializer.SerializerRegistry));
+
+    /// <summary>
+    /// Cerrar avisos solo toca los de la copropiedad, de esos tipos, que llevan a ese recurso, de hechos hasta el cierre y
+    /// todavia abiertos (pendings/325).
+    /// </summary>
+    [Fact]
+    public void BuildResolveFilter_ScopesByTenantKindResourceTimeAndOpen()
+    {
+        // Act
+        var rendered = RenderFilter(NotificationsRepository.BuildResolveFilter(
+            Tenant, ["expenses.expense_approval_required"], "expenses", "b709b9ec", Instant.FromUtc(2026, 10, 13, 16, 0)));
+
+        // Assert
+        Assert.Equal(
+            (true, "expenses", "b709b9ec", BsonNull.Value, true, true),
+            (rendered.Contains("Tenant"), rendered["Resource.Module"].AsString, rendered["Resource.AggregateId"].AsString, rendered["ResolvedAt"], rendered["Kind"].AsBsonDocument.Contains("$in"), rendered["OccurredAt"].AsBsonDocument.Contains("$lte")));
+    }
+
+    /// <summary>
+    /// La campana cuenta solo lo abierto y sin leer.
+    /// </summary>
+    [Fact]
+    public void BuildPendingFilter_ExcludesResolvedAndRead()
+    {
+        // Act
+        var rendered = RenderFilter(NotificationsRepository.BuildPendingFilter(Tenant, Yo, MisRoles, [Guid.NewGuid()]));
+
+        // Assert
+        Assert.Equal((BsonNull.Value, true), (rendered["ResolvedAt"], rendered["_id"].AsBsonDocument.Contains("$nin")));
+    }
+
+    /// <summary>
+    /// Un aviso guardado antes del cierre se sigue leyendo, como abierto (regla 31).
+    /// </summary>
+    [Fact]
+    public void Deserialize_NoticeSavedBeforeResolutions_ReadsAsOpen()
+    {
+        // Arrange
+        var notice = NotificationsAggregate.CreateNotice(
+            Guid.NewGuid(), Domain.ValueObjects.Audience.ForTenant(), "k", "t", "b", null, "{}", Tenant, Yo, Instant.FromUtc(2026, 10, 1, 0, 0));
+        notice.Resolve(Yo, Instant.FromUtc(2026, 10, 2, 0, 0));
+
+        var document = notice.ToBsonDocument();
+        document.Remove(nameof(NotificationsAggregate.ResolvedAt));
+        document.Remove(nameof(NotificationsAggregate.ResolvedBy));
+
+        // Act
+        var read = BsonSerializer.Deserialize<NotificationsAggregate>(document);
+
+        // Assert
+        Assert.Equal(((Instant?)null, (Guid?)null), (read.ResolvedAt, read.ResolvedBy));
+    }
 }

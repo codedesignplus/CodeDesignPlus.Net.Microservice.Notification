@@ -19,4 +19,13 @@ public class Errors: IErrorCodes
 
     /// <summary>Un acuse de lectura sin lector no distingue quien leyo.</summary>
     public static readonly Error ReaderIsRequired = new("106");
+
+    /// <summary>Un cierre de avisos sin copropiedad podria cerrar los de otra.</summary>
+    public static readonly Error TenantIsRequired = new("107");
+
+    /// <summary>Un cierre sin modulo no identifica a que recurso llevan los avisos.</summary>
+    public static readonly Error ResourceModuleIsRequired = new("108");
+
+    /// <summary>Un cierre sin agregado no identifica a que recurso llevan los avisos.</summary>
+    public static readonly Error ResourceAggregateIdIsRequired = new("109");
 }

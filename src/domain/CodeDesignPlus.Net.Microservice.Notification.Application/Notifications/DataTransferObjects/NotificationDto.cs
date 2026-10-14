@@ -14,7 +14,8 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 /// <param name="Resource">A donde lleva el clic, o <c>null</c> si no lleva a ninguna parte.</param>
 /// <param name="PayloadPreview">El contenido serializado que acompaña al aviso.</param>
 /// <param name="OccurredAt">Cuando ocurrio el hecho, que no es cuando se guardo.</param>
-/// <param name="IsRead">Si este lector ya lo leyo.</param>
+/// <param name="IsRead">Si este lector ya lo leyo, o si el aviso esta cerrado: entonces no espera nada de nadie.</param>
+/// <param name="ResolvedAt">Cuando se hizo la tarea que el aviso pedia; nulo si sigue abierto (pendings/325).</param>
 public record NotificationDto(
     Guid Id,
     string Kind,
@@ -23,7 +24,8 @@ public record NotificationDto(
     ResourceDto? Resource,
     string? PayloadPreview,
     Instant OccurredAt,
-    bool IsRead);
+    bool IsRead,
+    Instant? ResolvedAt = null);
 
 /// <summary>
 /// El recurso al que lleva el clic.

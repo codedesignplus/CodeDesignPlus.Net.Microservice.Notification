@@ -29,7 +29,8 @@ public class PurgeTenantDataHandler(INotificationsRepository repository, ILogger
     {
         var notifications = await repository.DeleteByTenantAsync<NotificationsAggregate>(data.AggregateId, token);
         var reads = await repository.DeleteByTenantAsync<NotificationReadAggregate>(data.AggregateId, token);
+        var resolutions = await repository.DeleteByTenantAsync<NotificationResolutionAggregate>(data.AggregateId, token);
 
-        logger.LogInformation("Tenant {TenantId} purged: {Notifications} notifications and {Reads} reads deleted", data.AggregateId, notifications, reads);
+        logger.LogInformation("Tenant {TenantId} purged: {Notifications} notifications, {Reads} reads and {Resolutions} resolutions deleted", data.AggregateId, notifications, reads, resolutions);
     }
 }

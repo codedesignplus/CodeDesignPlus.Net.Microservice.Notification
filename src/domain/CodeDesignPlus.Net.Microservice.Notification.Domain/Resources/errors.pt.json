@@ -7,6 +7,9 @@
     "103": "O tipo de notificação é obrigatório.",
     "104": "O título da notificação é obrigatório.",
     "105": "O identificador da notificação é obrigatório.",
-    "106": "Falta indicar quem lê a notificação."
+    "106": "Falta indicar quem lê a notificação.",
+    "107": "Para fechar avisos é preciso o condomínio ao qual pertencem.",
+    "108": "Para fechar avisos é preciso o módulo do recurso ao qual levam.",
+    "109": "Para fechar avisos é preciso o identificador do recurso ao qual levam."
   }
 }

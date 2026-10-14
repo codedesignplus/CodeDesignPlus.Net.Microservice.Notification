@@ -37,10 +37,32 @@ public interface INotificationsRepository : IRepositoryBase
     /// <param name="roles">Los roles que el lector trae en su token.</param>
     /// <param name="criteria">Filtros, orden y pagina que pide quien consulta.</param>
     /// <param name="excluir">Avisos que no deben salir, para el filtro de "solo sin leer".</param>
+    /// <param name="openOnly">Solo los avisos sin cerrar: con "solo sin leer", uno cerrado ya no espera nada del lector.</param>
     /// <param name="cancellationToken">Token de cancelacion.</param>
     /// <returns>La pagina pedida y cuantos avisos le alcanzan en total.</returns>
-    Task<Pagination<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir, CancellationToken cancellationToken);
+    Task<Pagination<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir, bool openOnly, CancellationToken cancellationToken);
 
-    /// <summary>Cuantos avisos le alcanzan, para el contador de la campana.</summary>
-    Task<long> CountInboxAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken);
+    /// <summary>
+    /// Cuantos avisos le alcanzan sin leer y sin cerrar, para el contador de la campana.
+    /// </summary>
+    /// <param name="tenant">La copropiedad del lector.</param>
+    /// <param name="userId">El lector.</param>
+    /// <param name="roles">Los roles del lector en esa copropiedad.</param>
+    /// <param name="leidos">Los avisos que el lector ya leyo.</param>
+    /// <param name="cancellationToken">Token de cancelacion.</param>
+    /// <returns>Los pendientes de la campana.</returns>
+    Task<long> CountPendingAsync(Guid tenant, Guid userId, string[] roles, IReadOnlyCollection<Guid> leidos, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Cierra los avisos abiertos de esos tipos que llevan a ese recurso, de hechos anteriores o iguales al cierre.
+    /// </summary>
+    /// <param name="tenant">La copropiedad.</param>
+    /// <param name="kinds">Los tipos de aviso.</param>
+    /// <param name="module">El modulo del recurso.</param>
+    /// <param name="aggregateId">El recurso.</param>
+    /// <param name="resolvedBy">Quien hizo la tarea.</param>
+    /// <param name="resolvedAt">Cuando.</param>
+    /// <param name="cancellationToken">Token de cancelacion.</param>
+    /// <returns>Cuantos avisos se cerraron.</returns>
+    Task<long> ResolveAsync(Guid tenant, IReadOnlyCollection<string> kinds, string module, string aggregateId, Guid resolvedBy, Instant resolvedAt, CancellationToken cancellationToken);
 }

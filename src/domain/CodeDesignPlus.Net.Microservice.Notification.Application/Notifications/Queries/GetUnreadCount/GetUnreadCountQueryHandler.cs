@@ -4,9 +4,10 @@ namespace CodeDesignPlus.Net.Microservice.Notification.Application.Notifications
 /// Manejador de <see cref="GetUnreadCountQuery"/>.
 /// </summary>
 /// <remarks>
-/// Son dos conteos —lo que me alcanza y lo que ya acuse— y no una consulta cruzada, porque los avisos y
-/// los acuses viven en colecciones distintas a proposito: el acuse de un aviso de tenant lo escribiria
-/// cada usuario de la copropiedad, y como array dentro del aviso no tendria techo.
+/// Los avisos y los acuses viven en colecciones distintas a proposito: el acuse de un aviso de tenant lo
+/// escribiria cada usuario de la copropiedad, y como array dentro del aviso no tendria techo. Por eso se traen
+/// los acuses del lector y se descartan en la consulta de los avisos abiertos, la misma que usa la bandeja con
+/// "solo sin leer" (pendings/325).
 /// <para>
 /// El resultado <b>no se emite como metrica por kind</b>: eso multiplicaria las series en SigNoz
 /// (regla 13, seccion 6).
@@ -25,10 +26,10 @@ public class GetUnreadCountQueryHandler(
         // mismo que la bandeja, o la campana anuncia avisos que no aparecen al abrirla.
         var roles = await roleDirectory.GetRolesAsync(user.IdUser, user.Tenant, cancellationToken);
 
-        var alcanzan = await repository.CountInboxAsync(user.Tenant, user.IdUser, roles, cancellationToken);
-        var leidos = await readRepository.CountReadAsync(user.Tenant, user.IdUser, cancellationToken);
+        // Lo que alcanza, sin acuse y sin cerrar, en una sola consulta. Restar los acuses de lo que alcanza dejaba de cuadrar
+        // en cuanto un aviso se cierra: uno cerrado y leido se restaria dos veces (pendings/325).
+        var leidos = await readRepository.GetAllReadIdsAsync(user.Tenant, user.IdUser, cancellationToken);
 
-        // Nunca negativo: un acuse puede sobrevivir al aviso que lo origino si este se purga.
-        return Math.Max(0, alcanzan - leidos);
+        return await repository.CountPendingAsync(user.Tenant, user.IdUser, roles, leidos, cancellationToken);
     }
 }

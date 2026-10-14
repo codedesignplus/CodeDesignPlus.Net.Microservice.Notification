@@ -64,6 +64,18 @@ public class NotificationsAggregate(Guid id) : AggregateRootBase(id)
     /// <summary>Cuando ocurrio el hecho, que no es cuando se guardo el aviso.</summary>
     public Instant OccurredAt { get; private set; }
 
+    /// <summary>
+    /// Cuando se hizo la tarea que el aviso pedia: desde entonces no cuenta como pendiente en la campana de nadie.
+    /// </summary>
+    /// <remarks>
+    /// Miembro suelto (regla 31): los avisos guardados antes no lo traen y se leen como nulo, que es «abierto». El servicio
+    /// no sabe que tarea era: lo cierra quien la hizo, por el tipo del aviso y el recurso al que lleva.
+    /// </remarks>
+    public Instant? ResolvedAt { get; private set; }
+
+    /// <summary>Quien hizo la tarea, o el usuario de sistema.</summary>
+    public Guid? ResolvedBy { get; private set; }
+
     public static NotificationsAggregate Create(Guid id, string eventName, NotificationType type, string? payloadPreview, Guid tenant, Guid createdBy)
     {
         var aggregate = new NotificationsAggregate(id)
@@ -126,6 +138,25 @@ public class NotificationsAggregate(Guid id) : AggregateRootBase(id)
             CreatedBy = createdBy,
             Tenant = tenant
         };
+    }
+
+    /// <summary>
+    /// Cierra el aviso porque la tarea que pedia ya se hizo.
+    /// </summary>
+    /// <param name="resolvedBy">Quien la hizo.</param>
+    /// <param name="resolvedAt">Cuando.</param>
+    /// <remarks>Idempotente: un aviso ya cerrado conserva su primer cierre.</remarks>
+    public void Resolve(Guid resolvedBy, Instant resolvedAt)
+    {
+        if (ResolvedAt.HasValue)
+        {
+            return;
+        }
+
+        ResolvedAt = resolvedAt;
+        ResolvedBy = resolvedBy;
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
+        UpdatedBy = resolvedBy;
     }
 
     public void MarkAsSent(Guid? updateBy)
