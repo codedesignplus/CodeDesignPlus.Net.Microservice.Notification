@@ -57,8 +57,9 @@ public class GetInboxQueryHandler(
             x.Resource is null ? null : new ResourceDto(x.Resource.Module, x.Resource.AggregateId),
             x.PayloadPreview,
             x.OccurredAt,
-            // Un aviso cerrado no espera nada del lector: se pinta como leido aunque no lo haya abierto.
-            leidos.Contains(x.Id) || x.ResolvedAt.HasValue,
+            // Leido es que este lector lo abrio o lo marco, nada mas (pendings/202). Que la tarea ya se hizo lo dice
+            // ResolvedAt: antes un aviso cerrado salia como leido aunque nadie lo hubiera abierto.
+            leidos.Contains(x.Id),
             x.ResolvedAt));
 
         return Pagination<NotificationDto>.Create(data, pagina.TotalCount, pagina.Limit, pagina.Skip);

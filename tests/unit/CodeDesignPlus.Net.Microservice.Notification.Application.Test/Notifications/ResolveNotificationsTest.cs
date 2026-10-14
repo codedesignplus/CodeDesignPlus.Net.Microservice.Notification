@@ -1,5 +1,7 @@
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.Notify;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.ResolveNotifications;
+using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
+using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetInbox;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetUnreadCount;
 using CodeDesignPlus.Net.Microservice.Notification.Domain.Services;
 using CodeDesignPlus.Net.Microservice.Notification.Domain.ValueObjects;
@@ -122,6 +124,38 @@ public class ResolveNotificationsTest
 
         // Assert
         Assert.Equal(3, count);
+    }
+
+    /// <summary>
+    /// Un aviso que se cerro solo no queda como leido si nadie lo abrio: «Resuelta» no es «Leida» (pendings/202).
+    /// </summary>
+    [Fact]
+    public async Task Inbox_ResolvedNoticeNobodyOpened_IsResolvedButNotRead()
+    {
+        // Arrange
+        resolutions.Add(NotificationResolutionAggregate.Create(Tenant, Kind, "expenses", ExpenseId, Approver, Approved));
+        await new NotifyCommandHandler(notifier.Object, repository.Object).Handle(Notice(Requested), default);
+
+        var reads = new Mock<INotificationReadRepository>();
+        reads.Setup(x => x.GetReadIdsAsync(Tenant, Approver, It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        var user = new Mock<IUserContext>();
+        user.SetupGet(x => x.Tenant).Returns(Tenant);
+        user.SetupGet(x => x.IdUser).Returns(Approver);
+
+        var directory = new Mock<IRoleDirectory>();
+        directory.Setup(x => x.GetRolesAsync(Approver, Tenant, It.IsAny<CancellationToken>())).ReturnsAsync(["council"]);
+
+        repository
+            .Setup(x => x.GetInboxAsync(Tenant, Approver, It.IsAny<string[]>(), It.IsAny<C.Criteria>(), null, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Pagination<NotificationsAggregate>.Create([stored!], 1, 10, 0));
+
+        // Act
+        var inbox = await new GetInboxQueryHandler(repository.Object, reads.Object, user.Object, directory.Object).Handle(new GetInboxQuery(new C.Criteria(), false), default);
+
+        // Assert
+        var notice = Assert.Single(inbox.Data);
+        Assert.Equal((false, Approved), (notice.IsRead, notice.ResolvedAt));
     }
 
     private static NotifyCommand Notice(Instant occurredAt) => new(
