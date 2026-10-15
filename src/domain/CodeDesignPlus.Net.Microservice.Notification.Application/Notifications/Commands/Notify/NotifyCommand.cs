@@ -24,7 +24,11 @@ public class Validator : AbstractValidator<NotifyCommand>
     public Validator()
     {
         RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.Tenant).NotEmpty();
+
+        // Un aviso a personas o a roles puede ir sin copropiedad: es un aviso de plataforma, que se lee fuera de toda
+        // copropiedad (los roles de plataforma, como el Super Admin, los leen asi). Uno a toda la copropiedad no: sin
+        // copropiedad no tiene a quien llegar.
+        RuleFor(x => x.Tenant).NotEmpty().When(x => x.Audience is null || x.Audience.Kind == Domain.Enums.AudienceKind.Tenant);
         RuleFor(x => x.Audience).NotNull();
         RuleFor(x => x.Kind).NotEmpty();
         RuleFor(x => x.Title).NotEmpty();
