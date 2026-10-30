@@ -229,6 +229,40 @@ public class InboxFilterTest
     }
 
     /// <summary>
+    /// The kinds filter is the unfiltered inbox, not a copy of it: the list never offers a kind the inbox would not show
+    /// (pendings/718).
+    /// </summary>
+    [Fact]
+    public void BuildKindsFilter_IsTheUnfilteredInboxFilter()
+    {
+        // Act
+        var rendered = RenderFilter(NotificationsRepository.BuildKindsFilter(Tenant, Yo, MisRoles));
+
+        // Assert
+        Assert.Equal(RenderConCriteria(new C.Criteria()), rendered);
+    }
+
+    /// <summary>
+    /// The distinct of kinds only sees the reader's tenant and what reaches the reader: never the kinds of another user or of
+    /// another tenant (pendings/718).
+    /// </summary>
+    [Fact]
+    public void BuildKindsFilter_ScopesToTheReaderAndTheTenant()
+    {
+        // Arrange
+        var otherUser = Guid.Parse("ee000000-0000-4000-8000-000000000005");
+
+        // Act
+        var rendered = RenderFilter(NotificationsRepository.BuildKindsFilter(Tenant, Yo, MisRoles));
+
+        // Assert
+        var userBranch = Rama(rendered, AudienceKind.User);
+        Assert.Equal(
+            (new BsonBinaryData(Tenant, GuidRepresentation.Standard), Yo.ToString(), false, 3),
+            (rendered["Tenant"], userBranch["Audience.Values"].AsString, rendered.ToString().Contains(otherUser.ToString()), RamasDelOr(rendered).Count));
+    }
+
+    /// <summary>
     /// Un aviso guardado antes del cierre se sigue leyendo, como abierto (regla 31).
     /// </summary>
     [Fact]

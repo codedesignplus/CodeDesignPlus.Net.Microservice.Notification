@@ -2,6 +2,7 @@ using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Com
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Commands.MarkAsRead;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.DataTransferObjects;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetInbox;
+using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetInboxKinds;
 using CodeDesignPlus.Net.Microservice.Notification.Application.Notifications.Queries.GetUnreadCount;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,21 @@ public class NotificationController(IMediator mediator) : ControllerBase
         [FromQuery] bool unreadOnly = false,
         CancellationToken cancellationToken = default)
         => Ok(await mediator.Send(new GetInboxQuery(criteria, unreadOnly), cancellationToken));
+
+    /// <summary>
+    /// The distinct notice kinds in the caller's inbox, to fill the inbox "kind" filter.
+    /// </summary>
+    /// <remarks>
+    /// Same audience as <see cref="GetInbox"/>: user, roles and tenant come from the token, never from the URL.
+    /// </remarks>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The kinds, in ordinal order.</returns>
+    [HttpGet("kinds")]
+    [Description("Get the distinct notification kinds in the caller's inbox")]
+    [ProducesResponseType(typeof(string[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetInboxKinds(CancellationToken cancellationToken)
+        => Ok(await mediator.Send(new GetInboxKindsQuery(), cancellationToken));
 
     /// <summary>
     /// Cuantos avisos sin leer tiene, para el numerito de la campana.

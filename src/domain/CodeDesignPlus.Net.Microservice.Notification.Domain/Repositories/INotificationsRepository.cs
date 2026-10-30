@@ -43,6 +43,16 @@ public interface INotificationsRepository : IRepositoryBase
     Task<Pagination<NotificationsAggregate>> GetInboxAsync(Guid tenant, Guid userId, string[] roles, C.Criteria criteria, IReadOnlyCollection<Guid>? excluir, bool openOnly, CancellationToken cancellationToken);
 
     /// <summary>
+    /// The distinct notice kinds in a reader's inbox, under the same audience filter as <see cref="GetInboxAsync"/>.
+    /// </summary>
+    /// <param name="tenant">The reader's tenant.</param>
+    /// <param name="userId">The reader.</param>
+    /// <param name="roles">The reader's roles in that tenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The kinds, without empty values, in ordinal order.</returns>
+    Task<string[]> GetInboxKindsAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Cuantos avisos le alcanzan sin leer y sin cerrar, para el contador de la campana.
     /// </summary>
     /// <param name="tenant">La copropiedad del lector.</param>

@@ -142,6 +142,30 @@ public class NotificationsRepository(IServiceProvider serviceProvider, IOptions<
         return Pagination<NotificationsAggregate>.Create(data, totalCount, criteria.Limit, criteria.Skip);
     }
 
+    /// <summary>
+    /// The filter of the inbox kinds: the unfiltered inbox, so the list never offers a kind the inbox would not show.
+    /// </summary>
+    /// <remarks>
+    /// It is the inbox filter itself, not a copy: tenant outside the OR, and the user, role and tenant-wide branches. Without
+    /// it, the distinct would return the kinds of every user and every tenant.
+    /// </remarks>
+    /// <param name="tenant">The reader's tenant.</param>
+    /// <param name="userId">The reader.</param>
+    /// <param name="roles">The reader's roles in that tenant.</param>
+    public static FilterDefinition<NotificationsAggregate> BuildKindsFilter(Guid tenant, Guid userId, string[] roles)
+        => BuildInboxFilter(tenant, userId, roles, new C.Criteria(), null);
+
+    /// <inheritdoc/>
+    public async Task<string[]> GetInboxKindsAsync(Guid tenant, Guid userId, string[] roles, CancellationToken cancellationToken)
+    {
+        var cursor = await base.GetCollection<NotificationsAggregate>()
+            .DistinctAsync(x => x.Kind, BuildKindsFilter(tenant, userId, roles), cancellationToken: cancellationToken);
+
+        var kinds = await cursor.ToListAsync(cancellationToken);
+
+        return [.. kinds.Where(x => !string.IsNullOrWhiteSpace(x)).Order(StringComparer.Ordinal)];
+    }
+
     /// <inheritdoc/>
     public Task<long> CountPendingAsync(Guid tenant, Guid userId, string[] roles, IReadOnlyCollection<Guid> leidos, CancellationToken cancellationToken)
         => base.GetCollection<NotificationsAggregate>()
